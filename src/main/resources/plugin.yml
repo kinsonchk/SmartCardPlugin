@@ -1,0 +1,9 @@
+name: SmartCardPlugin
+description: $description
+version: '${version}'
+
+main: me.ksmc.smartCardPlugin.Main
+api-version: '1.21'
+
+authors: [ KS ]
+website: www.ks.com
