@@ -1,9 +1,23 @@
 name: SmartCardPlugin
-description: $description
+description: Adds automated fare collection (AFC) systems for servers with public transportation systems.
 version: '${version}'
 
 main: me.ksmc.smartCardPlugin.Main
-api-version: '1.21'
+api-version: '${api.version}'
 
 authors: [ KS ]
-website: www.ks.com
+
+depend:
+  - Vault
+
+commands:
+  smartcard:
+    # For now, all usage of this command requires admin permission
+    description: Main command
+    permission: smartcard.admin
+    usage: /<command>
+
+permissions:
+  smartcard.admin:
+    description: Allows the use of admin commands.
+    default: false
