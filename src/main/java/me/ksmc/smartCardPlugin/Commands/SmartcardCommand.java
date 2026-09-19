@@ -11,8 +11,6 @@ public class SmartcardCommand implements CommandExecutor {
 
 
 
-
-
         return true;
     }
 }

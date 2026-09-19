@@ -3,7 +3,7 @@ description: Adds automated fare collection (AFC) systems for servers with publi
 version: '${version}'
 
 main: me.ksmc.smartCardPlugin.Main
-api-version: '${api.version}'
+api-version: '1.21'
 
 authors: [ KS ]
 
@@ -14,7 +14,7 @@ commands:
   smartcard:
     # For now, all usage of this command requires admin permission
     description: Main command
-    permission: smartcard.admin
+    #permission: smartcard.admin
     usage: /<command>
 
 permissions:
