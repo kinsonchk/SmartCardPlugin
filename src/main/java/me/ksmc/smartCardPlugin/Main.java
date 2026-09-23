@@ -1,43 +1,48 @@
-package me.ksmc.smartCardPlugin;
+package me.ksmc.smartcardplugin;
 
-import me.ksmc.smartCardPlugin.Commands.SmartcardCommand;
-import me.ksmc.smartCardPlugin.Database.FareMediaDatabase;
+import me.ksmc.smartcardplugin.command.SmartcardCommand;
+import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
 
     private FareMediaDatabase fareMediaDatabase;
-    // Database getter
-    public FareMediaDatabase getFareMediaDatabase() {
-        return this.fareMediaDatabase;
-    }
 
     @Override
     public void onEnable() {
         // Plugin startup logic
 
-        // Creates the database .db file (if not already created yet)
-        try {
-            if (!getDataFolder().exists()) {
-                getDataFolder().mkdirs();
-            }
-            getServer().getConsoleSender().sendMessage("Database not found, creating a new one...");
-            fareMediaDatabase = new FareMediaDatabase(getDataFolder().getAbsolutePath() + "/fare_media.db");
+        // Creates the folder for storing plugin files (if not already created)
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
 
+        // Copies the config.yml file (if not already exists in server plugin directory)
+        saveDefaultConfig();
+
+        // Copies the sample fare chart CSV files in fare_charts directory to server plugin directory
+        saveResource("fare_charts/mtr_sample.csv", false);
+        saveResource("fare_charts/mtr_lrt_sample.csv", false);
+
+        // Creates the database .db file (if not already created yet) and connect to it
+        try {
+            fareMediaDatabase = new FareMediaDatabase(getDataFolder().getAbsolutePath() + "/fare_media.db");
         } catch (SQLException e) {
             e.printStackTrace();
-            getServer().getConsoleSender().sendMessage("Failed to connect to the database! " + e.getMessage());
+            getLogger().log(Level.SEVERE, "Failed to load fare_media database! " + e.getMessage());
 
             // Disable the plugin if couldn't connect to the database
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
+
         getCommand("smartcard").setExecutor(new SmartcardCommand());
 
-        getServer().getConsoleSender().sendMessage("Plugin has been enabled!");
+        getServer().getConsoleSender().sendMessage("[Smartcard] Plugin has been enabled!");
     }
 
     @Override
@@ -45,12 +50,15 @@ public final class Main extends JavaPlugin {
         // Plugin shutdown logic
 
         // Close database connection
-        try {
-            fareMediaDatabase.closeConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (fareMediaDatabase != null) {
+            try {
+                fareMediaDatabase.closeConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
-        getServer().getConsoleSender().sendMessage("Plugin has been disabled!");
+
+        getServer().getConsoleSender().sendMessage("[Smartcard] Plugin has been disabled!");
     }
 }

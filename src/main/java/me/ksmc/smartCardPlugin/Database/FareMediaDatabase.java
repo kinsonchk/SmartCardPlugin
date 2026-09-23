@@ -1,4 +1,4 @@
-package me.ksmc.smartCardPlugin.Database;
+package me.ksmc.smartcardplugin.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,7 +10,7 @@ public class FareMediaDatabase {
     private final Connection connection;
 
     public FareMediaDatabase(String path) throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+        this.connection = DriverManager.getConnection("jdbc:sqlite:" + path);
 
         try (Statement statement = connection.createStatement()) {
             statement.execute("""
@@ -37,7 +37,10 @@ public class FareMediaDatabase {
                 )
             """);
         }
+    }
 
+    public FareMediaDatabase getFareMediaDatabase() {
+        return this;
     }
 
     public void closeConnection() throws SQLException {

@@ -2,7 +2,7 @@ name: SmartCardPlugin
 description: Adds automated fare collection (AFC) systems for servers with public transportation systems.
 version: '${version}'
 
-main: me.ksmc.smartCardPlugin.Main
+main: me.ksmc.smartcardplugin.Main
 api-version: '1.21'
 
 authors: [ KS ]

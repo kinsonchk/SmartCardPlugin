@@ -1,0 +1,196 @@
+# You can define transit agencies in this file.
+# There must be at least one transit agency.
+
+# Notes:
+# For time durations, you must use this format: "amount unit"
+# - MUST leave a space between the amount and the unit
+# - the unit can be: "seconds" or "minutes" or "hours" or "days" or "weeks"
+# - CANNOT USE months or years as the unit since they vary in length
+# - the unit MUST BE in its full, plural form, even though if it is a 1
+# Accepted example: "1 seconds"
+# Unaccepted examples: "1 second" or "1 sec" or "1 secs" or "1 s", etc.
+
+# Transit agency example 1: Hong Kong's MTR
+# All features are enabled for demonstration
+MTR:
+  company-name: "MTR"
+  currency-exchange-rate: 1.0
+  smart-card-config:
+    enabled: true
+    card-brand-name: "Octopus Card"
+    purchase-cost: 50.0
+    max-balance: 3000.0
+    penalty-fee: 60.8
+    card-expiry-from-last-use: "90 days"
+    use-in-other-companies:
+      - "MTR_LRT"
+  single-journey-ticket-config:
+    enabled: true
+    expiry: "24 hours"
+  exit-only-ticket-config:
+    enabled: true
+    purchase-cost: 66.0
+    expiry: "7 minutes"
+  pass-config:
+    enabled: true
+    pass-types:
+      1:
+        pass-type-name: "Tuen Mun-Nam Cheong Day Pass"
+        purchase-cost: 30.0
+        expiry: "24 hours"
+        trips-allowed: -1
+        valid-stations:
+          - "TUM"
+          - "SIH"
+          - "TIS"
+          - "LOP"
+          - "YUL"
+          - "KSR"
+          - "TWW"
+          - "MEF"
+          - "NAC"
+        use-in-other-companies:
+          - "MTR_LRT"
+      2:
+        pass-type-name: "Tourist Day Pass"
+        purchase-cost: 75.0
+        expiry: "24 hours"
+        trips-allowed: -1
+        valid-stations: []
+        use-in-other-companies:
+          - "MTR_LRT"
+      3:
+        pass-type-name: "Sheung Shui / Wu Kai Sha - East Tsim Sha Tsui Monthly Pass"
+        purchase-cost: 30.0
+        expiry: "30 days"
+        trips-allowed: -1
+        valid-stations:
+          - "SHS"
+          - "FAN"
+          - "TWO"
+          - "TAP"
+          - "UNI"
+          - "FOT"
+          - "SHT"
+          - "TAW"
+          - "KOT"
+          - "MKK"
+          - "HUH"
+          - "WKS"
+          - "MOS"
+          - "HEO"
+          - "TSH"
+          - "SHM"
+          - "CIO"
+          - "STW"
+          - "CKT"
+          - "HIK"
+          - "DIH"
+          - "KAT"
+          - "SUW"
+          - "TKW"
+          - "HOM"
+          - "ETS"
+        use-in-other-companies: []
+  self-service-machine-config:
+    smart-card-add-value-amounts:
+      - 1.0
+      - 2.0
+      - 5.0
+      - 10.0
+      - 20.0
+      - 50.0
+      - 100.0
+  gate-config:
+    gate-open-time: "2 seconds"
+  fare-calculation-config:
+    fare-chart: "mtr_sample.csv"
+    fare-multiplier-value: 1.0
+
+# Transit agency example 2: Hong Kong's Light Rail ("subsidiary" of MTR)
+# Note that certain features can be disabled, as seen below
+MTR_LRT:
+  company-name: "MTR Light Rail"
+  currency-exchange-rate: 1.0
+  smart-card-config:
+    enabled: false
+    card-brand-name: ""
+    purchase-cost: 0.0
+    max-balance: 0.0
+    penalty-fee: 0.0
+    card-expiry-from-last-use: ""
+    use-in-other-companies: []
+  single-journey-ticket-config:
+    enabled: true
+    expiry: "24 hours"
+  exit-only-ticket-config:
+    enabled: false
+    purchase-cost: 0.0
+    expiry: ""
+  pass-config:
+    enabled: false
+    pass-types: []
+  self-service-machine-config:
+    smart-card-add-value-amounts:
+      - 1.0
+      - 2.0
+      - 5.0
+      - 10.0
+      - 20.0
+      - 50.0
+      - 100.0
+  gate-config:
+    gate-open-time: "2 seconds"
+  fare-calculation-config:
+    fare-chart: "mtr_lrt_sample.csv"
+    fare-multiplier-value: 1.0
+
+# Another example: the STM in Montreal, Quebec, Canada
+STM:
+  company-name: "Montreal Metro"
+  currency-exchange-rate: 5.68
+  smart-card-config:
+    enabled: false
+    card-brand-name: ""
+    purchase-cost: 0.0
+    max-balance: 0.0
+    penalty-fee: 0.0
+    card-expiry-from-last-use: ""
+    use-in-other-companies: []
+  single-journey-ticket-config:
+    enabled: false
+    expiry: ""
+  exit-only-ticket-config:
+    enabled: false
+    purchase-cost: 0.0
+    expiry: ""
+  pass-config:
+    enabled: true
+    pass-types:
+      1:
+        pass-type-name: "10-trip, All Modes A"
+        purchase-cost: 35.0
+        expiry: "365 days"
+        trips-allowed: 10
+        valid-stations:
+          - "A"
+        use-in-other-companies:
+          - "REM"
+          - "EXO"
+      2:
+        pass-type-name: "Monthly, All Modes A"
+        purchase-cost: 110.0
+        expiry: "30 days"
+        trips-allowed: -1
+        valid-stations:
+          - "A"
+        use-in-other-companies:
+          - "REM"
+          - "EXO"
+  self-service-machine-config:
+    smart-card-add-value-amounts: []
+  gate-config:
+    gate-open-time: "2 seconds"
+  fare-calculation-config:
+    fare-chart: ""
+    fare-multiplier-value: 0.0

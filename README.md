@@ -65,6 +65,7 @@ Each transit operator can deploy self-service machines across its transportation
 | 2 (arguments)    | agencyID (currentStation) | MTR TSY   |
 | 3 (customizable) |                           |           |
 | 4 (customizable) |                           |           |
+
 A machine can be configured to be at a specified station, so that fare calculation can be based on that origin station. This can be achieved by indicating the current station code/zone on line 2 of a sign.
 
 An admin can manually open a transit operator's self-service machine menu with "/smartcard machine agencyID currentStation".
@@ -104,6 +105,7 @@ Each device can be serving one of these functions; each function requires certai
 | Exit           | stationCode/Zone (additionalMoney) | 3 12.5  | Exit point of a transportation network; additionalMoney to collect when activated, can leave blank            |
 | Pay            | moneyAmount (stationCode/Zone)     | 45.6    | Deduct money directly from the card when used; stationCode/Zone is used for certain purposes, can leave blank |
 | Staff          |                                    | Staff   | Can only be used with staff passes; there are no arguments                                                    |
+
 If there are issues (not caused by a player attempting to fare evade) with a smart card, an admin can manually reset (clear) the current entry and exit record on the card with "/smartcard fixcard cardID".
 
 ### 3.1 Fare Validation Device Functions
@@ -159,7 +161,7 @@ Redstone mechanics: A dropper should be placed at the block right behind where t
 A transit operator can earn money from fare payments. Admins can use "/smartcard revenue agencyID" to see revenue information of the specified transit operator (how much it earned), and "/smartcard withdraw agencyID moneyAmount adminName" to transfer money from the transit operator's revenue to an admin's (or a staff member’s) personal balance. The revenue cannot be manually modified, and once money is withdrawn, it cannot be deposited back.
 
 ### 4.1 Fare Calculation
-The plugin supports both distance-based and zone-based fare calculations. They basically function the same in this plugin: each fare combination between two stations/zones can be defined through a fare table (sometimes also referred to as a fare chart) in CSV format. Each transit operator can have a separate fare table CSV file tailored to them. For each transportation network, it is even possible to have one fare chart for smart cards, and a separate one for single-journey tickets. The CSV files must be placed in a designated location in the server’s directory.
+The plugin supports both distance-based and zone-based fare calculations. They basically function the same in this plugin: each fare combination between two stations/zones can be defined through a fare table (sometimes also referred to as a fare chart) in CSV format. Each transit operator can have a separate fare table CSV file tailored to them. The CSV files must be placed in a designated location in the server’s directory (in the "fare_charts" folder).
 
 Example: MTR with smart cards (Octopus card) (using a small number of stations for demonstration)
 - Column is for origin stations; row is for destination stations
@@ -180,13 +182,13 @@ Source: https://www.mtr.com.hk/en/customer/tickets/octopus_fares.html
 
 Another example: zone-based fares (such as Hong Kong LRT)
 
-|        | Zone 1 | Zone 2 | Zone 3 | Zone 4 | Zone 5 |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| Zone 1 | 5.5    | 5.5    | 6.5    | 8.0    | 8.0    |
-| Zone 2 | 5.5    | 5.5    | 5.5    | 6.5    | 8.0    |
-| Zone 3 | 6.5    | 5.5    | 5.5    | 5.5    | 6.5    |
-| Zone 4 | 8.0    | 6.5    | 5.5    | 5.5    | 5.5    |
-| Zone 5 | 8.0    | 8.0    | 6.5    | 5.5    | 5.5    |
+|       | Zone1 | Zone2 | Zone3 | Zone4 | Zone5 |
+| ----- | ----- | ----- | ----- | ----- | ----- |
+| Zone1 | 5.5   | 5.5   | 6.5   | 8.0   | 8.0   |
+| Zone2 | 5.5   | 5.5   | 5.5   | 6.5   | 8.0   |
+| Zone3 | 6.5   | 5.5   | 5.5   | 5.5   | 6.5   |
+| Zone4 | 8.0   | 6.5   | 5.5   | 5.5   | 5.5   |
+| Zone5 | 8.0   | 8.0   | 6.5   | 5.5   | 5.5   |
 
 If a combination is missing or no such combination is defined when calculating the fare, the fare will be treated as $0 by default.
 
@@ -245,15 +247,16 @@ agencyID 1 (there must be at least one transit operator defined):
 	- expiry time
 - pass config:
 	- enabled (if false, it means this company doesn't offer passes, and function 2.1.2 won’t appear in the self-service machine menu)
-	- passTypeID 1 (optional; there can be no passTypes defined for a transit operator):
-		- name of the passType
-		- pass purchase cost
-		- expiry time
-		- allowed number of uses (-1 for unlimited use)
-		- valid stations/zones (in a list; leave blank if no restrictions)
-		- allowed use in other companies (list; leave blank if none)
-	- passTypeID 2:
-		- ... same as above
+	- pass types:
+		- passTypeID 1 (optional; there can be no passTypes defined for a transit operator):
+			- name of the passType
+			- pass purchase cost
+			- expiry time
+			- allowed number of uses (-1 for unlimited use)
+			- valid stations/zones (in a list; leave blank if no restrictions)
+			- allowed use in other companies (list; leave blank if none)
+		- passTypeID 2:
+			- ... same as above
 - self-service machine config:
     - smart card add-value amount increments (list, max 12 options; default only $1 option)
 - gate config:
@@ -266,115 +269,204 @@ agencyID 2:
 - ... same as above
 ```
 
-## Example config.yml:
+## config.yml Example:
 ```
-MTR:
-- company-name: “MTR”
-- currency-exchange-rate: 1.0
-- smart-card-config:
-	- enabled: true
-	- card-brand-name: "Octopus Card"
-	- purchase-cost: 50.0
-	- max-balance: 3000.0
-	- penalty-fee: 60.8
-	- card-expiry-from-last-use: 3months
-	- use-in-other-companies:
-	  - MTR_LRT
-- single-journey-ticket-config:
-	- enabled: true
-	- expiry: 24h
-- exit-only-ticket-config:
-	- enabled: true
-	- purchase-cost: 66.0
-	- expiry: 7mins
-- pass-config:
-	- enabled: true
-	- WRL:
-		- pass-type-name: "Tuen Mun-Nam Cheong Day Pass"
-		- purchase-cost: 30.0
-		- expiry: 24h
-		- trips-allowed: -1
-		- valid-stations:
-		  - TUM
-		  - SIH
-		  - TIS
-		  - LOP
-		  - YUL
-		  - KSR
-		  - TWW
-		  - MEF
-		  - NAC
-		- use-in-other-companies:
-		  - MTR_LRT
-	- tourist:
-		- pass-type-name: "Tourist Day Pass"
-		- purchase-cost: 75.0
-		- expiry: 24h
-		- trips-allowed: -1
-		- valid-stations:
-		- use-in-other-companies:
-- self-service-machine-config:
-    - smart-card-add-value-amounts:
-        - 1.0
-        - 2.0
-        - 5.0
-        - 10.0
-        - 20.0
-        - 50.0
-        - 100.0
-- gate-config:
-	- gate-open-time: 2secs
-- fare-calculation-config:
-    - fare-chart: "MTR.csv"
-	- fare-multiplier-value: 1.0
-
-STM:
-- company-name: “Montreal Metro”
-- currency-exchange-rate: 5.68
-- smart-card-config:
-	- enabled: false
-	- card-brand-name:
-	- purchase-cost:
-	- max-balance:
-	- penalty-fee:
-	- card-expiry-from-last-use: 
-	- use-in-other-companies:
-- single-journey-ticket-config:
-	- enabled: false
-	- expiry:
-- exit-only-ticket-config:
-	- enabled: false
-	- purchase-cost:
-	- expiry:
-- pass-config:
-	- enabled: true
-	- 10_A:
-		- pass-type-name: "10-trip, All Modes A"
-		- purchase-cost: 35.0
-		- expiry: 1yr
-		- trips-allowed: 10
-		- valid-stations:
-		  - A
-		- use-in-other-companies:
-		  - REM
-		  - EXO
-	- monthly_A:
-		- pass-type-name: "Monthly, All Modes A"
-		- purchase-cost: 110.0
-		- expiry: 1month
-		- trips-allowed: -1
-		- valid-stations:
-		  - A
-		- use-in-other-companies:
-		  - REM
-		  - EXO
-- self-service-machine-config:
-    - smart-card-add-value-amounts:
-- gate-config:
-	- gate-open-time: 2secs
-- fare-calculation-config:
-    - fare-chart: "STM.csv"
-	- fare-multiplier-value: 1.0
+# You can define transit agencies in this file.  
+# There must be at least one transit agency.  
+  
+# Notes:  
+# For time durations, you must use this format: "amount unit"  
+# - MUST leave a space between the amount and the unit  
+# - the unit can be: "seconds" or "minutes" or "hours" or "days" or "weeks"  
+# - CANNOT USE months or years as the unit since they vary in length  
+# - the unit MUST BE in its full, plural form, even though if it is a 1  
+# Accepted example: "1 seconds"  
+# Unaccepted examples: "1 second" or "1 sec" or "1 secs" or "1 s", etc.  
+  
+# Transit agency example 1: Hong Kong's MTR  
+# All features are enabled for demonstration  
+MTR:  
+  company-name: "MTR"  
+  currency-exchange-rate: 1.0  
+  smart-card-config:  
+    enabled: true  
+    card-brand-name: "Octopus Card"  
+    purchase-cost: 50.0  
+    max-balance: 3000.0  
+    penalty-fee: 60.8  
+    card-expiry-from-last-use: "90 days"  
+    use-in-other-companies:  
+      - "MTR_LRT"  
+  single-journey-ticket-config:  
+    enabled: true  
+    expiry: "24 hours"  
+  exit-only-ticket-config:  
+    enabled: true  
+    purchase-cost: 66.0  
+    expiry: "7 minutes"  
+  pass-config:  
+    enabled: true  
+    pass-types:  
+      1:  
+        pass-type-name: "Tuen Mun-Nam Cheong Day Pass"  
+        purchase-cost: 30.0  
+        expiry: "24 hours"  
+        trips-allowed: -1  
+        valid-stations:  
+          - "TUM"  
+          - "SIH"  
+          - "TIS"  
+          - "LOP"  
+          - "YUL"  
+          - "KSR"  
+          - "TWW"  
+          - "MEF"  
+          - "NAC"  
+        use-in-other-companies:  
+          - "MTR_LRT"  
+      2:  
+        pass-type-name: "Tourist Day Pass"  
+        purchase-cost: 75.0  
+        expiry: "24 hours"  
+        trips-allowed: -1  
+        valid-stations: []  
+        use-in-other-companies:  
+          - "MTR_LRT"  
+      3:  
+        pass-type-name: "Sheung Shui / Wu Kai Sha - East Tsim Sha Tsui Monthly Pass"  
+        purchase-cost: 30.0  
+        expiry: "30 days"  
+        trips-allowed: -1  
+        valid-stations:  
+          - "SHS"  
+          - "FAN"  
+          - "TWO"  
+          - "TAP"  
+          - "UNI"  
+          - "FOT"  
+          - "SHT"  
+          - "TAW"  
+          - "KOT"  
+          - "MKK"  
+          - "HUH"  
+          - "WKS"  
+          - "MOS"  
+          - "HEO"  
+          - "TSH"  
+          - "SHM"  
+          - "CIO"  
+          - "STW"  
+          - "CKT"  
+          - "HIK"  
+          - "DIH"  
+          - "KAT"  
+          - "SUW"  
+          - "TKW"  
+          - "HOM"  
+          - "ETS"  
+        use-in-other-companies: []  
+  self-service-machine-config:  
+    smart-card-add-value-amounts:  
+      - 1.0  
+      - 2.0  
+      - 5.0  
+      - 10.0  
+      - 20.0  
+      - 50.0  
+      - 100.0  
+  gate-config:  
+    gate-open-time: "2 seconds"  
+  fare-calculation-config:  
+    fare-chart: "mtr_sample.csv"  
+    fare-multiplier-value: 1.0  
+  
+# Transit agency example 2: Hong Kong's Light Rail ("subsidiary" of MTR)  
+# Note that certain features can be disabled, as seen below  
+MTR_LRT:  
+  company-name: "MTR Light Rail"  
+  currency-exchange-rate: 1.0  
+  smart-card-config:  
+    enabled: false  
+    card-brand-name: ""  
+    purchase-cost: 0.0  
+    max-balance: 0.0  
+    penalty-fee: 0.0  
+    card-expiry-from-last-use: ""  
+    use-in-other-companies: []  
+  single-journey-ticket-config:  
+    enabled: true  
+    expiry: "24 hours"  
+  exit-only-ticket-config:  
+    enabled: false  
+    purchase-cost: 0.0  
+    expiry: ""  
+  pass-config:  
+    enabled: false  
+    pass-types: []  
+  self-service-machine-config:  
+    smart-card-add-value-amounts:  
+      - 1.0  
+      - 2.0  
+      - 5.0  
+      - 10.0  
+      - 20.0  
+      - 50.0  
+      - 100.0  
+  gate-config:  
+    gate-open-time: "2 seconds"  
+  fare-calculation-config:  
+    fare-chart: "mtr_lrt_sample.csv"  
+    fare-multiplier-value: 1.0  
+  
+# Another example: the STM in Montreal, Quebec, Canada  
+STM:  
+  company-name: "Montreal Metro"  
+  currency-exchange-rate: 5.68  
+  smart-card-config:  
+    enabled: false  
+    card-brand-name: ""  
+    purchase-cost: 0.0  
+    max-balance: 0.0  
+    penalty-fee: 0.0  
+    card-expiry-from-last-use: ""  
+    use-in-other-companies: []  
+  single-journey-ticket-config:  
+    enabled: false  
+    expiry: ""  
+  exit-only-ticket-config:  
+    enabled: false  
+    purchase-cost: 0.0  
+    expiry: ""  
+  pass-config:  
+    enabled: true  
+    pass-types:  
+      1:  
+        pass-type-name: "10-trip, All Modes A"  
+        purchase-cost: 35.0  
+        expiry: "365 days"  
+        trips-allowed: 10  
+        valid-stations:  
+          - "A"  
+        use-in-other-companies:  
+          - "REM"  
+          - "EXO"  
+      2:  
+        pass-type-name: "Monthly, All Modes A"  
+        purchase-cost: 110.0  
+        expiry: "30 days"  
+        trips-allowed: -1  
+        valid-stations:  
+          - "A"  
+        use-in-other-companies:  
+          - "REM"  
+          - "EXO"  
+  self-service-machine-config:  
+    smart-card-add-value-amounts: []  
+  gate-config:  
+    gate-open-time: "2 seconds"  
+  fare-calculation-config:  
+    fare-chart: ""  
+    fare-multiplier-value: 0.0
 ```
 
 
