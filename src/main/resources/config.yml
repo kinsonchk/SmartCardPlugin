@@ -61,7 +61,7 @@ MTR:
           - "MTR_LRT"
       3:
         pass-type-name: "Sheung Shui / Wu Kai Sha - East Tsim Sha Tsui Monthly Pass"
-        purchase-cost: 30.0
+        purchase-cost: 510.0
         expiry: "30 days"
         trips-allowed: -1
         valid-stations:
