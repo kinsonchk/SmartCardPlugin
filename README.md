@@ -11,15 +11,15 @@ The AFC system in this plugin consists of 4 main components:
 ### 1.1 Smart Cards (Stored-Value Cards)
 Smart cards are represented as customized name tags in Minecraft. Examples of stored-value smart cards in real life: Hong Kong's Octopus card, London's Oyster card, Sydney's Opal card, New York City's OMNY card.
 
-To obtain a smart card: Players must get one from a self-service machine for a non-refundable fee (can be customized per transit operator). A player can obtain an unlimited amount of smart cards. An admin can manually obtain a smart card linked to a particular transit operator and specify its expiry time for no cost by using "/smartcard getcard agencyID expiryTime".
+To obtain a smart card: Players must get one from a self-service machine for a non-refundable fee (can be customized per transit operator). A player can obtain an unlimited amount of smart cards. An admin can manually obtain a smart card linked to a particular transit operator and specify its expiry time from its last usage for no cost by using "/smartcard getcard agencyID expiryFromLastUse".
 
-Initially, a card contains no money. Players must use a self-service machine to add balance, and the corresponding cost will be deducted from the player's balance. If the transit operator uses a different currency, an exchange rate will be applied (can be customized). Money stored inside a smart card cannot be withdrawn. There is a maximum amount of money that can be loaded onto the card (can be customized per transit operator). An admin can manually set a smart card's balance by using "/smartcard cardbalance cardID moneyAmount".
+Initially, a card contains no money. Players must use a self-service machine to add balance, and the corresponding cost will be deducted from the player's balance. If the transit operator uses a different currency, an exchange rate will be applied (can be customized). Money stored inside a smart card cannot be withdrawn. There is a maximum amount of money that can be loaded onto the card (can be customized per transit operator). An admin can manually set a smart card's balance by using "/smartcard setcardbalance cardID moneyAmount".
 
 Each card has a unique cardID, and is linked to the transit operator that issued it and cannot be changed. A card stores its remaining balance and the last 5 transaction records. A card can expire after a certain time period (can be customized per transit operator) from the last transaction. A card is not linked to a player and can be used by any player.
 
 To use a smart card: right-click on designated signs while holding the card to activate fare gates/validators and use payment terminals. It is possible to make smart cards useable across different transit agencies.
 
-A card can be manually deleted from the system by an admin using "/smartcard deletecard cardID".
+A card can be manually deleted from the system by an admin using "/smartcard delete card cardID".
 
 ### 1.2 Tickets
 Tickets are represented as customized paper items in Minecraft. Tickets do not have IDs. A ticket is only usable within the transportation system of the transit operator that issued it.
@@ -48,7 +48,7 @@ Each pass has a unique passID. A pass is linked to the transit operator that iss
 
 To use a pass: right-click on designated signs while holding the pass to activate fare gates/validators. It is possible to make a pass useable across different transit agencies.
 
-A pass can be manually deleted from the system by an admin using "/smartcard deletepass passID".
+A pass can be manually deleted from the system by an admin using "/smartcard delete pass passID".
 #### 1.3.2 Staff Passes
 Staff passes allow pass holders (usually staff members) to travel for free and access restricted areas. A staff pass can activate any fare validation device with no cost. A staff pass is only usable within the transportation system of the transit operator that issued it.
 
@@ -82,7 +82,9 @@ A player needs to be holding a smart card to use this option. Then, a submenu wi
 #### 2.1.5 Function 5: Fare Enquiry
 This option allows a player to check details about their smart card, pass or ticket. A player needs to be holding a smart card/pass/ticket to use this option. The self-service machine menu will then disappear and the details will be displayed in chat. If it’s a smart card, its transaction records will also be displayed.
 
-An admin can use "/smartcard enquiry card/pass cardID/passID" to manually check the details of a smart card or a pass.
+A player can use "/smartcard enquiry" to manually check the details of any fare medium that they are currently holding.
+
+An admin can use "/smartcard enquirystaff card/pass cardID/passID" to manually check the details of a smart card or a pass.
 #### 2.1.6 Function 6: Stuck in Paid-Area
 This option allows a player to obtain an exit-only ticket for a surcharge to use an exit fate gate/validator to leave the transportation system, should the player lose their smart card/ticket/pass during their journey.
 
@@ -202,24 +204,24 @@ Potential ones (MTR):
 # Commands and Permissions
 ## Commands
 
-| Command (optional arugments in brackets)                                                           | Permission | Description                                                                                    |
-| -------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
-| /smartcard getcard [agencyID] ([expiryTime])                                                       | admin      | Obtain a smart card. If expiryTime is not specified, use the default one in config.            |
-| /smartcard cardbalance [cardID] [moneyAmount]                                                      | admin      | Set the money balance of the specified card.                                                   |
-| /smartcard fixcard [cardID]                                                                        | admin      | Clears the current entryRecord and exitRecord of a smart card.                                 |
-| /smartcard deletecard [cardID]                                                                     | admin      | Deletes a smart card from the database.                                                        |
-| /smartcard ticket [agencyID] [originStationCode/Zone] [destinationStationCode/Zone] ([expiryTime]) | admin      | Obtain a single-journey ticket. If expiryTime is not specified, use the default one in config. |
-| /smartcard exitonly [agencyID]                                                                     | admin      | Obtain an exit-only ticket.                                                                    |
-| /smartcard getpass [agencyID] [passType]                                                           | admin      | Obtain a pass.                                                                                 |
-| /smartcard deletepass [passID]                                                                     | admin      | Deletes a pass from the database.                                                              |
-| /smartcard staffpass [agencyID]                                                                    | admin      | Obtain a staff pass.                                                                           |
-| /smartcard machine [agencyID] ([currentStation])                                                   | admin      | Manually open the self-service machine menu of the specified transit operator.                 |
-| /smartcard enquiry card/pass [cardID/passID]                                                       | admin      | Manually check the details of a smart card or a pass.                                          |
-| /smartcard revenue [agencyID]                                                                      | admin      | See revenue information of the specified transit operator.                                     |
-| /smartcard withdraw [agencyID] [moneyAmount] [adminName]                                           | admin      | Transfer money from a transit operator's revenue to an admin's personal balance.               |
+| Command (optional arugments in brackets)                                                           | Who can use it/Permission | Description                                                                                                | Remarks                                                                           |
+| -------------------------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| /smartcard getcard [agencyID] ([expiryFromLastUse])                                                | admin                     | Obtain a smart card.                                                                                       | If expiryFromLastUse is not specified, use the default value in config.           |
+| /smartcard setcardbalance [cardID] [moneyAmount]                                                   | admin, server console     | Set the money balance of the specified smart card.                                                         |                                                                                   |
+| /smartcard fixcard [cardID]                                                                        | admin, server console     | Clears the current entryRecord and exitRecord of a specified smart card.                                   |                                                                                   |
+| /smartcard ticket [agencyID] [originStationCode/Zone] [destinationStationCode/Zone] ([expiryTime]) | admin                     | Obtain a single-journey ticket.                                                                            | If expiryTime is not specified, use the default value in config.                  |
+| /smartcard exitonly [agencyID]                                                                     | admin                     | Obtain an exit-only ticket.                                                                                |                                                                                   |
+| /smartcard getpass [agencyID] [passType]                                                           | admin                     | Obtain a pass.                                                                                             |                                                                                   |
+| /smartcard staffpass [agencyID]                                                                    | admin                     | Obtain a staff pass.                                                                                       |                                                                                   |
+| /smartcard delete card/pass [cardID/passID]                                                        | admin, server console     | Deletes a smart card or pass from the database.                                                            | Will not delete the card/pass item from inventory, but instead render it useless. |
+| /smartcard machine [agencyID] ([currentStation])                                                   | player, admin             | Manually open the self-service machine menu of the specified transit operator (and the specified station). |                                                                                   |
+| /smartcard enquiry                                                                                 | player, admin             | For a player to manually check the details of any fare medium that they are currently holding.             | The player must be holding a fare medium to use this command.                     |
+| /smartcard enquirystaff card/pass [cardID/passID]                                                  | admin, server console     | Manually check the details of any specified smart card or pass.                                            | Only works for smart cards/passes.                                                |
+| /smartcard revenue [agencyID]                                                                      | admin, server console     | See revenue information of the specified transit operator.                                                 |                                                                                   |
+| /smartcard withdraw [agencyID] [moneyAmount] [adminName]                                           | admin, server console     | Transfer money from a transit operator's revenue to an admin's personal balance.                           | If adminName is not found, then no money will be transferred.                     |
 ## Permissions
 - "Smartcard.Admin": Gives access to admin commands. (OP is not sufficient, permission must be explicitly granted to admins)
-	- Currently all commands are admin-use only, so granting this permission allows access to all commands of this plugin.
+	- Most commands are admin-use only, so granting this permission allows access to all admin commands of this plugin.
 
 # Configuration
 Server admins can define transit operators and customize each one in the config.yml file. There must be at least one transit operator.

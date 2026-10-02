@@ -12,10 +12,24 @@ depend:
 
 commands:
   smartcard:
-    # For now, all usage of this command requires admin permission
-    description: Main command
-    #permission: smartcard.admin
-    usage: /<command>
+    # Usage of this command that requires the admin permission is managed in SmartcardCommand.java
+    description: Main command to utilise the plugin.
+    usage: |-
+      Subcommands:
+      /<command> getcard [agencyID] ([expiryFromLastUse]): Obtain a smart card.
+      /<command> setcardbalance [cardID] [moneyAmount]: Set the money balance of the specified smart card.
+      /<command> fixcard [cardID]: Clears the current entryRecord and exitRecord of a specified smart card.
+      /<command> ticket [agencyID] [originStation] [destinationStation] ([expiryTime]): Obtain a single-journey ticket.
+      /<command> exitonly [agencyID]: Obtain an exit-only ticket.
+      /<command> getpass [agencyID] [passType]: Obtain a pass.
+      /<command> staffpass [agencyID]: Obtain a staff pass.
+      /<command> delete card/pass [cardID/passID]: Deletes a smart card or pass from the database.
+      /<command> machine [agencyID] ([currentStation]): Manually open the self-service machine menu of the specified transit operator (and the specified station).
+      /<command> enquiry: For a player to manually check the details of any fare medium that they are currently holding.
+      /<command> enquirystaff card/pass [cardID/passID]: Manually check the details of any specified smart card or pass.
+      /<command> revenue [agencyID]: See revenue information of the specified transit operator.
+      /<command> withdraw [agencyID] [moneyAmount] [adminName]: Transfer money from a transit operator's revenue to an admin's personal balance.
+      
 
 permissions:
   smartcard.admin:
