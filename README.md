@@ -204,21 +204,21 @@ Potential ones (MTR):
 # Commands and Permissions
 ## Commands
 
-| Command (optional arugments in brackets)                                                           | Who can use it/Permission | Description                                                                                                | Remarks                                                                           |
-| -------------------------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| /smartcard getcard [agencyID] ([expiryFromLastUse])                                                | admin                     | Obtain a smart card.                                                                                       | If expiryFromLastUse is not specified, use the default value in config.           |
-| /smartcard setcardbalance [cardID] [moneyAmount]                                                   | admin, server console     | Set the money balance of the specified smart card.                                                         |                                                                                   |
-| /smartcard fixcard [cardID]                                                                        | admin, server console     | Clears the current entryRecord and exitRecord of a specified smart card.                                   |                                                                                   |
-| /smartcard ticket [agencyID] [originStationCode/Zone] [destinationStationCode/Zone] ([expiryTime]) | admin                     | Obtain a single-journey ticket.                                                                            | If expiryTime is not specified, use the default value in config.                  |
-| /smartcard exitonly [agencyID]                                                                     | admin                     | Obtain an exit-only ticket.                                                                                |                                                                                   |
-| /smartcard getpass [agencyID] [passType]                                                           | admin                     | Obtain a pass.                                                                                             |                                                                                   |
-| /smartcard staffpass [agencyID]                                                                    | admin                     | Obtain a staff pass.                                                                                       |                                                                                   |
-| /smartcard delete card/pass [cardID/passID]                                                        | admin, server console     | Deletes a smart card or pass from the database.                                                            | Will not delete the card/pass item from inventory, but instead render it useless. |
-| /smartcard machine [agencyID] ([currentStation])                                                   | player, admin             | Manually open the self-service machine menu of the specified transit operator (and the specified station). |                                                                                   |
-| /smartcard enquiry                                                                                 | player, admin             | For a player to manually check the details of any fare medium that they are currently holding.             | The player must be holding a fare medium to use this command.                     |
-| /smartcard enquirystaff card/pass [cardID/passID]                                                  | admin, server console     | Manually check the details of any specified smart card or pass.                                            | Only works for smart cards/passes.                                                |
-| /smartcard revenue [agencyID]                                                                      | admin, server console     | See revenue information of the specified transit operator.                                                 |                                                                                   |
-| /smartcard withdraw [agencyID] [moneyAmount] [adminName]                                           | admin, server console     | Transfer money from a transit operator's revenue to an admin's personal balance.                           | If adminName is not found, then no money will be transferred.                     |
+| Command (optional arugments in brackets)                                                           | Who can use it/Permission | Description                                                                                                | Remarks                                                                                                                                      |
+| -------------------------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| /smartcard getcard [agencyID] ([expiryFromLastUse])                                                | admin                     | Obtain a smart card.                                                                                       | If expiryFromLastUse is not specified, use the default value in config.                                                                      |
+| /smartcard setcardbalance [cardID] [moneyAmount]                                                   | admin, server console     | Set the money balance of the specified smart card.                                                         |                                                                                                                                              |
+| /smartcard fixcard [cardID]                                                                        | admin, server console     | Clears the current entryRecord and exitRecord of a specified smart card.                                   |                                                                                                                                              |
+| /smartcard ticket [agencyID] [originStationCode/Zone] [destinationStationCode/Zone] ([expiryTime]) | admin                     | Obtain a single-journey ticket.                                                                            | If expiryTime is not specified, use the default value in config.                                                                             |
+| /smartcard exitonly [agencyID]                                                                     | admin                     | Obtain an exit-only ticket.                                                                                |                                                                                                                                              |
+| /smartcard getpass [agencyID] [passType]                                                           | admin                     | Obtain a pass.                                                                                             |                                                                                                                                              |
+| /smartcard staffpass [agencyID]                                                                    | admin                     | Obtain a staff pass.                                                                                       |                                                                                                                                              |
+| /smartcard delete card/pass [cardID/passID]                                                        | admin, server console     | Deletes a smart card or pass from the database.                                                            | Will not delete the card/pass item from inventory, but instead render it useless.                                                            |
+| /smartcard machine [agencyID] ([currentStation])                                                   | player, admin             | Manually open the self-service machine menu of the specified transit operator (and the specified station). |                                                                                                                                              |
+| /smartcard enquiry                                                                                 | player, admin             | For a player to manually check the details of any fare medium that they are currently holding.             | The player must be holding a fare medium to use this command.                                                                                |
+| /smartcard enquirystaff card/pass [cardID/passID]                                                  | admin, server console     | Manually check the details of any specified smart card or pass.                                            | Only works for smart cards/passes.                                                                                                           |
+| /smartcard revenue [agencyID]                                                                      | admin, server console     | See revenue information of the specified transit operator.                                                 |                                                                                                                                              |
+| /smartcard withdraw [agencyID] [moneyAmount] [adminName]                                           | admin, server console     | Transfer money from a transit operator's revenue to an admin's personal balance.                           | The recipient does not need to have the admin permission to receive the money. If adminName is not found, then no money will be transferred. |
 ## Permissions
 - "Smartcard.Admin": Gives access to admin commands. (OP is not sufficient, permission must be explicitly granted to admins)
 	- Most commands are admin-use only, so granting this permission allows access to all admin commands of this plugin.
@@ -277,13 +277,17 @@ agencyID 2:
 # There must be at least one transit agency.  
   
 # Notes:  
-# For time durations, you must use this format: "amount unit"  
-# - MUST leave a space between the amount and the unit  
-# - the unit can be: "seconds" or "minutes" or "hours" or "days" or "weeks"  
+# For time durations, you must use this format: "amount""unit"  
+# - NO SPACE between the amount and the unit  
+# - The unit can only be one of the following, and it MUST BE a single letter:  
+#   - "s" for seconds  
+#   - "m" for minutes  
+#   - "h" for hours  
+#   - "d" for days  
+#   - "w" for weeks  
 # - CANNOT USE months or years as the unit since they vary in length  
-# - the unit MUST BE in its full, plural form, even though if it is a 1  
-# Accepted example: "1 seconds"  
-# Unaccepted examples: "1 second" or "1 sec" or "1 secs" or "1 s", etc.  
+# Accepted examples: "1s", "2m", "3h", "4d", "5w"  
+# Unaccepted examples: "1 s", "1min", "2hrs", "1 day", "3 w", etc.  
   
 # Transit agency example 1: Hong Kong's MTR  
 # All features are enabled for demonstration  
@@ -296,23 +300,23 @@ MTR:
     purchase-cost: 50.0  
     max-balance: 3000.0  
     penalty-fee: 60.8  
-    card-expiry-from-last-use: "90 days"  
+    card-expiry-from-last-use: "90d"  
     use-in-other-companies:  
       - "MTR_LRT"  
   single-journey-ticket-config:  
     enabled: true  
-    expiry: "24 hours"  
+    expiry: "24h"  
   exit-only-ticket-config:  
     enabled: true  
     purchase-cost: 66.0  
-    expiry: "7 minutes"  
+    expiry: "7m"  
   pass-config:  
     enabled: true  
     pass-types:  
       1:  
         pass-type-name: "Tuen Mun-Nam Cheong Day Pass"  
         purchase-cost: 30.0  
-        expiry: "24 hours"  
+        expiry: "24h"  
         trips-allowed: -1  
         valid-stations:  
           - "TUM"  
@@ -329,7 +333,7 @@ MTR:
       2:  
         pass-type-name: "Tourist Day Pass"  
         purchase-cost: 75.0  
-        expiry: "24 hours"  
+        expiry: "24h"  
         trips-allowed: -1  
         valid-stations: []  
         use-in-other-companies:  
@@ -337,7 +341,7 @@ MTR:
       3:  
         pass-type-name: "Sheung Shui / Wu Kai Sha - East Tsim Sha Tsui Monthly Pass"  
         purchase-cost: 510.0  
-        expiry: "30 days"  
+        expiry: "30d"  
         trips-allowed: -1  
         valid-stations:  
           - "SHS"  
@@ -377,7 +381,7 @@ MTR:
       - 50.0  
       - 100.0  
   gate-config:  
-    gate-open-time: "2 seconds"  
+    gate-open-time: "2s"  
   fare-calculation-config:  
     fare-chart: "mtr_sample.csv"  
     fare-multiplier-value: 1.0  
@@ -397,7 +401,7 @@ MTR_LRT:
     use-in-other-companies: []  
   single-journey-ticket-config:  
     enabled: true  
-    expiry: "24 hours"  
+    expiry: "24h"  
   exit-only-ticket-config:  
     enabled: false  
     purchase-cost: 0.0  
@@ -415,7 +419,7 @@ MTR_LRT:
       - 50.0  
       - 100.0  
   gate-config:  
-    gate-open-time: "2 seconds"  
+    gate-open-time: "2s"  
   fare-calculation-config:  
     fare-chart: "mtr_lrt_sample.csv"  
     fare-multiplier-value: 1.0  
@@ -445,7 +449,7 @@ STM:
       1:  
         pass-type-name: "10-trip, All Modes A"  
         purchase-cost: 35.0  
-        expiry: "365 days"  
+        expiry: "365d"  
         trips-allowed: 10  
         valid-stations:  
           - "A"  
@@ -455,7 +459,7 @@ STM:
       2:  
         pass-type-name: "Monthly, All Modes A"  
         purchase-cost: 110.0  
-        expiry: "30 days"  
+        expiry: "30d"  
         trips-allowed: -1  
         valid-stations:  
           - "A"  
@@ -465,7 +469,7 @@ STM:
   self-service-machine-config:  
     smart-card-add-value-amounts: []  
   gate-config:  
-    gate-open-time: "2 seconds"  
+    gate-open-time: "2s"  
   fare-calculation-config:  
     fare-chart: ""  
     fare-multiplier-value: 0.0
@@ -477,4 +481,5 @@ STM:
 - Developed and tested for Minecraft 1.21.11.
 - All functionality should work on newer versions, but not necessarily for older versions.
 ## Dependencies
-- Vault
+- Vault (https://www.spigotmc.org/resources/vault.34315/)
+- Essentials (EssentialsX https://essentialsx.net/downloads)

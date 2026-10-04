@@ -24,14 +24,22 @@ public class SmartcardCommand implements CommandExecutor {
 
         String subcommand = args[0];
         switch (subcommand) {
-            case "getcard":
+            case "getcard": {
                 if (args.length < 2) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
+                String agencyID = args[1];
+                String expiryFromLastUse = "";
+                if (args.length > 2) {
+                    expiryFromLastUse = args[2];
+                } else {
+                    //expiryFromLastUse = get value from config.yml
+                }
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(noPermissionMessage);
@@ -39,43 +47,67 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "setcardbalance":
+            case "setcardbalance": {
                 if (args.length < 3) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
+                String cardID = args[1];
+                double moneyAmount = 0.0;
+                try {
+                    moneyAmount = Double.parseDouble(args[2]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(ChatColor.RED + "Error: Please enter a valid money amount.");
+                    break;
+                }
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(noPermissionMessage);
                 }
                 break;
+            }
 
-            case "fixcard":
+            case "fixcard": {
                 if (args.length < 2) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
+                String cardID = args[1];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(noPermissionMessage);
                 }
                 break;
+            }
 
-            case "ticket":
+            case "ticket": {
                 if (args.length < 4) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
+                String agencyID = args[1];
+                String originStation = args[2];
+                String destinationStation = args[3];
+                String expiryTime = "";
+                if (args.length > 4) {
+                    expiryTime = args[4];
+                } else {
+                    //expiryTime = get value from config.yml
+                }
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(noPermissionMessage);
@@ -83,15 +115,18 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "exitonly":
+            case "exitonly": {
                 if (args.length < 2) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
+                String agencyID = args[1];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(noPermissionMessage);
@@ -99,15 +134,19 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "getpass":
+            case "getpass": {
                 if (args.length < 3) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
+                String agencyID = args[1];
+                String passType = args[2];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(noPermissionMessage);
@@ -115,15 +154,18 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "staffpass":
+            case "staffpass": {
                 if (args.length < 2) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
+                String agencyID = args[1];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission)) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(noPermissionMessage);
@@ -131,81 +173,111 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "delete":
+            case "delete": {
                 if (args.length < 3) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
+                if (!args[1].equals("card") && !args[1].equals("pass")) {
+                    sender.sendMessage(incorrectUsageMessage);
+                    return false;
+                }
+                String fareMediumID = args[2];
+
                 if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
-
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(noPermissionMessage);
                 }
                 break;
+            }
 
-            case "machine":
+            case "machine": {
                 if (args.length < 2) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
+                String agencyID = args[1];
+                String currentStation = "";
+                if (args.length > 2) {
+                    currentStation = args[2];
+                }
+
                 if (sender instanceof Player player) {
-
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "enquiry":
+            case "enquiry": {
                 if (sender instanceof Player player) {
-
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(onlyInGameUsageMessage);
                 }
                 break;
+            }
 
-            case "enquirystaff":
+            case "enquirystaff": {
                 if (args.length < 3) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
+                if (!args[1].equals("card") && !args[1].equals("pass")) {
+                    sender.sendMessage(incorrectUsageMessage);
+                    return false;
+                }
+                String fareMediumID = args[2];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(noPermissionMessage);
                 }
                 break;
+            }
 
-            case "revenue":
+            case "revenue": {
                 if (args.length < 2) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
+                String agencyID = args[1];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(noPermissionMessage);
                 }
                 break;
+            }
 
             case "withdraw":
                 if (args.length < 4) {
                     sender.sendMessage(incorrectUsageMessage);
                     return false;
                 }
-                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
+                String agencyID = args[1];
+                String moneyAmount = args[2];
+                String adminName = args[3];
 
+                if (sender instanceof Player player && player.hasPermission(adminPermission) || sender instanceof ConsoleCommandSender) {
                     sender.sendMessage("Success!");
+                    // run the subcommand
 
                 } else {
                     sender.sendMessage(noPermissionMessage);
