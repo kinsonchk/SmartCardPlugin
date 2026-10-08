@@ -6,7 +6,6 @@ import me.ksmc.smartcardplugin.dependency.VaultAPI;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
-
     // Allows passing the plugin instance to other classes
     private static Main plugin;
 
@@ -16,7 +15,7 @@ public final class Main extends JavaPlugin {
 
         // Plugin startup logic
 
-        // Copies the config.yml file (if not already exists in server plugin directory)
+        // Copies the config.yml file (if not already exists in the server plugin directory)
         saveDefaultConfig();
 
         // Creates the folder for storing plugin files (if not already created)
@@ -24,7 +23,7 @@ public final class Main extends JavaPlugin {
             getDataFolder().mkdirs();
         }
 
-        // Copies the sample fare chart CSV files in fare_charts directory to server plugin directory
+        // Copies the sample fare chart CSV files in fare_charts directory to the server plugin directory
         saveResource("fare_charts/mtr_sample.csv", false);
         saveResource("fare_charts/mtr_lrt_sample.csv", false);
 
@@ -38,17 +37,17 @@ public final class Main extends JavaPlugin {
         getServer().getConsoleSender().sendMessage("[Smartcard] Plugin has been enabled!");
     }
 
+    public static Main getPlugin() {
+        return plugin;
+    }
+
     @Override
     public void onDisable() {
         // Plugin shutdown logic
 
         FareMediaDatabase.disableDatabase();
 
-
         getServer().getConsoleSender().sendMessage("[Smartcard] Plugin has been disabled!");
     }
 
-    public static Main getPlugin() {
-        return plugin;
-    }
 }

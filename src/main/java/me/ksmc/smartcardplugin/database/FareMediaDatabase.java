@@ -16,12 +16,12 @@ public class FareMediaDatabase {
         try (Statement statement = connection.createStatement()) {
             statement.execute("""
                 CREATE TABLE IF NOT EXISTS SmartCards (
-                    card_id VARCHAR(50) PRIMARY KEY,
+                    card_id INTEGER PRIMARY KEY,  -- each entry will automatically be assigned a unique INTEGER card_id
                     agency_id VARCHAR(30) NOT NULL,
                     balance DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
-                    expiry_from_lastuse VARCHAR(20),
-                    entry_record VARCHAR(50),
-                    exit_record VARCHAR(50),
+                    expiry_from_last_use VARCHAR(20),
+                    entry_record VARCHAR(60),
+                    exit_record VARCHAR(60),
                     transactions TEXT
                 )
             """);
@@ -30,11 +30,11 @@ public class FareMediaDatabase {
         try (Statement statement = connection.createStatement()) {
             statement.execute("""
                 CREATE TABLE IF NOT EXISTS Passes (
-                    pass_id VARCHAR(50) PRIMARY KEY,
+                    pass_id INTEGER PRIMARY KEY,  -- each entry will automatically be assigned a unique INTEGER pass_id
                     agency_id VARCHAR(30) NOT NULL,
                     pass_type INT NOT NULL,
                     trips_remaining INT NOT NULL DEFAULT -1,
-                    has_entered_gate INT NOT NULL DEFAULT 0,
+                    has_entered_gate INT NOT NULL DEFAULT 0,  -- 0 for false, 1 for true
                     expiry BIGINT
                 )
             """);
@@ -50,10 +50,6 @@ public class FareMediaDatabase {
         }
     }
 
-    public FareMediaDatabase getFareMediaDatabase() {
-        return this;
-    }
-
     public static void initializeDatabase() {
         // Creates the database .db file (if not already created yet) and connect to it
         try {
@@ -65,6 +61,10 @@ public class FareMediaDatabase {
             // Disable the plugin if couldn't connect to the database
             Bukkit.getPluginManager().disablePlugin(Main.getPlugin());
         }
+    }
+
+    public static FareMediaDatabase getFareMediaDatabase() {
+        return fareMediaDatabase;
     }
 
     public static void disableDatabase() {
@@ -86,12 +86,71 @@ public class FareMediaDatabase {
 
 
     // Database Operations
-    public void createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (card_id, expiry_from_lastuse) VALUES (?, ?)")) {
+    // Smartcards - Modifying table values
+    public boolean createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use) VALUES (?, ?)")) {
             preparedStatement.setString(1, agencyID);
             preparedStatement.setString(2, expiryFromLastUse);
             preparedStatement.executeUpdate();
+
+            return preparedStatement.executeUpdate() > 0;  // if the SQL database operation is successful (i.e. at least one row was successfully inserted), function will return true
         }
     }
+
+    public void setCardBalance(String cardID, double moneyAmount) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET balance = ? WHERE card_id = ?")) {
+            preparedStatement.setDouble(1, moneyAmount);
+            preparedStatement.setString(2, cardID);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+//    public void createEntryRecord(String cardID, String stationCode) throws SQLException {
+//        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
+//            preparedStatement.setString(1, agencyID);
+//            preparedStatement.setString(2, agencyID);
+//            preparedStatement.executeUpdate();
+//        }
+//    }
+
+    public void clearEntryExitRecords(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = NULL, exit_record = NULL WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public void deleteSmartCard(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+    // Lookup table values
+    public boolean doesAgencyExist(String agencyID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM CompanyRevenue WHERE agency_id = ?")) {
+            preparedStatement.setString(1, agencyID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // Passes
+    public void createPass(String agencyID, String passType) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Passes (agency_id, pass_type) VALUES (?, ?)")) {
+            preparedStatement.setString(1, agencyID);
+            preparedStatement.setString(2, passType);
+            preparedStatement.executeUpdate();
+        }
+
+    }
+
+
 
 }

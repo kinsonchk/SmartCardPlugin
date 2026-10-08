@@ -68,7 +68,7 @@ Each transit operator can deploy self-service machines across its transportation
 
 A machine can be configured to be at a specified station, so that fare calculation can be based on that origin station. This can be achieved by indicating the current station code/zone on line 2 of a sign.
 
-An admin can manually open a transit operator's self-service machine menu with "/smartcard machine agencyID currentStation".
+A player (or admin) can also manually open a transit operator's self-service machine menu and use the machine just as usual with "/smartcard machine agencyID currentStation".
 
 A self-service machine has the following functions (some can be disabled by customizing config.yml):
 #### 2.1.1 Function 1: Buy Ticket
@@ -84,7 +84,7 @@ This option allows a player to check details about their smart card, pass or tic
 
 A player can use "/smartcard enquiry" to manually check the details of any fare medium that they are currently holding.
 
-An admin can use "/smartcard enquirystaff card/pass cardID/passID" to manually check the details of a smart card or a pass.
+An admin can use "/smartcard enquirystaff card/pass cardID/passID" to manually check the details of any smart card or pass.
 #### 2.1.6 Function 6: Stuck in Paid-Area
 This option allows a player to obtain an exit-only ticket for a surcharge to use an exit fate gate/validator to leave the transportation system, should the player lose their smart card/ticket/pass during their journey.
 
@@ -112,8 +112,9 @@ If there are issues (not caused by a player attempting to fare evade) with a sma
 
 ### 3.1 Fare Validation Device Functions
 #### 3.1.1 Function 1: Using an Entry device
-- For smart cards: As long as the card's balance is greater than $0, the device will be activated. An entry record with the station code/zone and timestamp will be loaded to the card.
+- For smart cards: As long as the card's balance is greater than $0, the device will be activated. An entry record with the transit agency, station code/zone and timestamp will be loaded to the card.
 	- If there has already been an entry record, a surcharge fee (can be set per transit operator; usually the highest possible fare within the transportation network) will be deducted from the card's balance. And if the card's balance is still greater than $0, the device will still be activated; if not, the device won't be activated (must add value to greater than $0 to use the card again).
+	- Also, if there has already been an entry record, and if the entry device involves a different transit agency than the one in the entry record, the device will not be activated regardless of the card's balance.
 - For single-journey tickets: A ticket will activate an entry device only if its origin station/zone matches that of the entry device. Upon successful activation of an entry device, the enteredGate value on the ticket will be updated to true.
 	- If the enteredGate value is already true, the device won't be activated.
 - An exit-only ticket cannot be used with an entry device (obviously).
@@ -122,6 +123,7 @@ If there are issues (not caused by a player attempting to fare evade) with a sma
 #### 3.1.2 Function 2: Using an Exit device
 - For smart cards: No matter whether the card's balance after deducting from a journey fare would result in a negative balance, an exit device can still be activated. An exit record with the station code/zone and timestamp will be loaded to the card, and the correct fare will be calculated and deducted from the card. The fare will then be added to the transaction record list.
 	- If no prior entry record was found, a surcharge fee (can be set) will be deducted from the card's balance in addition to the normal correct fare. The device will still be activated.
+	- However, if there has already been an entry record, and if the exit device involves a different transit agency than the one in the entry record, the device will not be activated regardless of the card's balance.
 - For tickets: A ticket will activate an exit device only if its destination station/zone matches that of the exit device. Upon successful activation of an exit device, the ticket will be confiscated.
 	- If the enteredGate value is not already true, the device won't be activated.
 - An exit-only ticket can activate any exit device of the same transit company that issued it. Upon successful activation, the ticket will be confiscated.
