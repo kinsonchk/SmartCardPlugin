@@ -91,17 +91,18 @@ public class FareMediaDatabase {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use) VALUES (?, ?)")) {
             preparedStatement.setString(1, agencyID);
             preparedStatement.setString(2, expiryFromLastUse);
-            preparedStatement.executeUpdate();
+            int executeResult = preparedStatement.executeUpdate();  // executeResult will be 1 if the SQL database operation was successful
 
-            return preparedStatement.executeUpdate() > 0;  // if the SQL database operation is successful (i.e. at least one row was successfully inserted), function will return true
+            return executeResult > 0;  // then the function will return true
         }
     }
 
-    public void setCardBalance(String cardID, double moneyAmount) throws SQLException {
+    public boolean setCardBalance(String cardID, double moneyAmount) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET balance = ? WHERE card_id = ?")) {
             preparedStatement.setDouble(1, moneyAmount);
             preparedStatement.setString(2, cardID);
-            preparedStatement.executeUpdate();
+
+            return preparedStatement.executeUpdate() > 0;
         }
     }
 
@@ -113,17 +114,19 @@ public class FareMediaDatabase {
 //        }
 //    }
 
-    public void clearEntryExitRecords(String cardID) throws SQLException {
+    public boolean clearEntryExitRecords(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = NULL, exit_record = NULL WHERE card_id = ?")) {
             preparedStatement.setString(1, cardID);
-            preparedStatement.executeUpdate();
+
+            return preparedStatement.executeUpdate() > 0;
         }
     }
 
-    public void deleteSmartCard(String cardID) throws SQLException {
+    public boolean deleteSmartCard(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM SmartCards WHERE card_id = ?")) {
             preparedStatement.setString(1, cardID);
-            preparedStatement.executeUpdate();
+
+            return preparedStatement.executeUpdate() > 0;
         }
     }
 
@@ -148,7 +151,14 @@ public class FareMediaDatabase {
             preparedStatement.setString(2, passType);
             preparedStatement.executeUpdate();
         }
+    }
 
+    public boolean deletePass(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
     }
 
 

@@ -3,6 +3,7 @@ package me.ksmc.smartcardplugin.command;
 import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.manager.ItemManager;
+import me.ksmc.smartcardplugin.util.FormatUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -11,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.Locale;
 
@@ -20,6 +23,7 @@ public class SmartcardCommand implements CommandExecutor {
     public static final String NO_PERMISSION_MESSAGE = ChatColor.RED + "You do not have permission to use this command.";
     public static final String ONLY_IN_GAME_USAGE_MESSAGE = ChatColor.RED + "This command can only be used in game.";
     public static final String INCORRECT_USAGE_MESSAGE = ChatColor.RED + "Error: Incorrect subcommand usage.";
+    public static final String DATABASE_ERROR_MESSAGE = ChatColor.RED + "Error: Database error.";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -39,11 +43,11 @@ public class SmartcardCommand implements CommandExecutor {
                 try {
                     if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
                         sender.sendMessage(ChatColor.RED + "Error: Agency not found.");
-                        break;
+                        return true;
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "Error: Database error.");
+                    sender.sendMessage(DATABASE_ERROR_MESSAGE);
                 }
 
                 String expiryFromLastUse;
@@ -59,10 +63,10 @@ public class SmartcardCommand implements CommandExecutor {
                     try {
                         String outcome = ItemManager.issueSmartcard(player, agencyID, expiryFromLastUse);
                         player.sendMessage(outcome);
-                        break;
+                        return true;
                     } catch (SQLException e) {
                         e.printStackTrace();
-                        player.sendMessage(ChatColor.RED + "Error: Database error.");
+                        player.sendMessage(DATABASE_ERROR_MESSAGE);
                     }
 
                 } else if (sender instanceof Player) {
@@ -79,17 +83,30 @@ public class SmartcardCommand implements CommandExecutor {
                     return false;
                 }
                 String cardID = args[1];
-                double moneyAmount;
-                try {
-                    moneyAmount = Double.parseDouble(args[2]);
-                } catch (NumberFormatException e) {
+                BigDecimal moneyAmount;  // use BigDecimal for more numerical accuracy
+                if (!FormatUtils.verifyMoneyString(args[2])) {
                     sender.sendMessage(ChatColor.RED + "Error: Please enter a valid money amount.");
-                    break;
+                    return true;
+                }
+                try {
+                    moneyAmount = new BigDecimal(args[2]).setScale(2, RoundingMode.HALF_UP);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(ChatColor.RED + "Error: Please enter a valid numeric amount.");
+                    return true;
                 }
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, Double.parseDouble(args[2]))) {
+                            sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
+                        } else {
+                            sender.sendMessage(ChatColor.GREEN + "The smartcard's balance has been updated to " + ChatColor.GOLD + "$" + moneyAmount + ChatColor.GREEN + ".");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -105,9 +122,17 @@ public class SmartcardCommand implements CommandExecutor {
                 String cardID = args[1];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
-
+                    try {
+                        if (!FareMediaDatabase.getFareMediaDatabase().clearEntryExitRecords(cardID)) {
+                            sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
+                        } else {
+                            sender.sendMessage(ChatColor.GREEN + "The smartcard's current entry and exit records have been cleared.");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
                 } else {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
                 }
@@ -208,11 +233,30 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);
                     return false;
                 }
+                String fareMediumType = args[1];
                 String fareMediumID = args[2];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        if (fareMediumType.equals("card")) {
+                            if (!FareMediaDatabase.getFareMediaDatabase().deleteSmartCard(fareMediumID)) {
+                                sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
+                            } else {
+                                sender.sendMessage(ChatColor.GREEN + "The smartcard has been deleted.");
+                            }
+                        } else {
+                            if (!FareMediaDatabase.getFareMediaDatabase().deletePass(fareMediumID)) {
+                                sender.sendMessage(ChatColor.RED + "Error: passID not found.");
+                            } else {
+                                sender.sendMessage(ChatColor.GREEN + "The pass has been deleted.");
+                            }
+                        }
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
