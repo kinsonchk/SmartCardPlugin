@@ -3,8 +3,7 @@ package me.ksmc.smartcardplugin.command;
 import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.manager.ItemManager;
-import me.ksmc.smartcardplugin.util.FormatUtils;
-import org.apache.commons.lang.ObjectUtils;
+import me.ksmc.smartcardplugin.util.StringFormattingUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,7 +14,6 @@ import org.bukkit.entity.Player;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
-import java.util.Locale;
 
 public class SmartcardCommand implements CommandExecutor {
     public static final String ADMIN_PERMISSION = "smartcard.admin";
@@ -40,16 +38,6 @@ public class SmartcardCommand implements CommandExecutor {
                 }
 
                 String agencyID = args[1];
-                try {
-                    if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
-                        sender.sendMessage(ChatColor.RED + "Error: Agency not found.");
-                        return true;
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    sender.sendMessage(DATABASE_ERROR_MESSAGE);
-                }
-
                 String expiryFromLastUse;
                 if (args.length > 2) {
                     expiryFromLastUse = args[2];
@@ -82,23 +70,18 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);
                     return false;
                 }
+
                 String cardID = args[1];
-                BigDecimal moneyAmount;  // use BigDecimal for more numerical accuracy
-                if (!FormatUtils.verifyMoneyString(args[2])) {
+                String moneyAmount = args[2];
+                if (!StringFormattingUtils.verifyMoneyString(moneyAmount)) {
                     sender.sendMessage(ChatColor.RED + "Error: Please enter a valid money amount.");
-                    return true;
-                }
-                try {
-                    moneyAmount = new BigDecimal(args[2]).setScale(2, RoundingMode.HALF_UP);
-                } catch (NumberFormatException e) {
-                    sender.sendMessage(ChatColor.RED + "Error: Please enter a valid numeric amount.");
                     return true;
                 }
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
                     // run the subcommand
                     try {
-                        if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, Double.parseDouble(args[2]))) {
+                        if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, Double.parseDouble(moneyAmount))) {
                             sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
                         } else {
                             sender.sendMessage(ChatColor.GREEN + "The smartcard's balance has been updated to " + ChatColor.GOLD + "$" + moneyAmount + ChatColor.GREEN + ".");
@@ -144,19 +127,27 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);
                     return false;
                 }
+
                 String agencyID = args[1];
                 String originStation = args[2];
                 String destinationStation = args[3];
-                String expiryTime = "";
+                String expiryTime;
                 if (args.length > 4) {
                     expiryTime = args[4];
                 } else {
-                    //expiryTime = get value from config.yml
+                    expiryTime = Main.getPlugin().getConfig().getString(agencyID + ".single-journey-ticket-config.expiry", null);
                 }
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        String outcome = ItemManager.issueTicket(player, agencyID, originStation, destinationStation, expiryTime);
+                        player.sendMessage(outcome);
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -174,8 +165,15 @@ public class SmartcardCommand implements CommandExecutor {
                 String agencyID = args[1];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        String outcome = ItemManager.issueExitOnlyTicket(player, agencyID);
+                        player.sendMessage(outcome);
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -194,7 +192,6 @@ public class SmartcardCommand implements CommandExecutor {
                 String passType = args[2];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
 
                 } else if (sender instanceof Player) {

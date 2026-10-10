@@ -85,8 +85,21 @@ public class FareMediaDatabase {
     }
 
 
-    // Database Operations
-    // Smartcards - Modifying table values
+    // Database Operations - Lookup table values
+    public boolean doesAgencyExist(String agencyID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM CompanyRevenue WHERE agency_id = ?")) {
+            preparedStatement.setString(1, agencyID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // Database Operations - Modify table values
+    // Smartcards
     public boolean createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use) VALUES (?, ?)")) {
             preparedStatement.setString(1, agencyID);
@@ -129,20 +142,6 @@ public class FareMediaDatabase {
             return preparedStatement.executeUpdate() > 0;
         }
     }
-
-
-    // Lookup table values
-    public boolean doesAgencyExist(String agencyID) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM CompanyRevenue WHERE agency_id = ?")) {
-            preparedStatement.setString(1, agencyID);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     // Passes
     public void createPass(String agencyID, String passType) throws SQLException {
