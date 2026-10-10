@@ -73,19 +73,12 @@ public class SmartcardCommand implements CommandExecutor {
 
                 String cardID = args[1];
                 String moneyAmount = args[2];
-                if (!StringFormattingUtils.verifyMoneyString(moneyAmount)) {
-                    sender.sendMessage(ChatColor.RED + "Error: Please enter a valid money amount.");
-                    return true;
-                }
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
                     // run the subcommand
                     try {
-                        if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, Double.parseDouble(moneyAmount))) {
-                            sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
-                        } else {
-                            sender.sendMessage(ChatColor.GREEN + "The smartcard's balance has been updated to " + ChatColor.GOLD + "$" + moneyAmount + ChatColor.GREEN + ".");
-                        }
+                        sender.sendMessage(ItemManager.updateSmartcardBalance(cardID, moneyAmount));
+                        return true;
                     } catch (SQLException e) {
                         e.printStackTrace();
                         sender.sendMessage(DATABASE_ERROR_MESSAGE);
@@ -107,11 +100,8 @@ public class SmartcardCommand implements CommandExecutor {
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
                     // run the subcommand
                     try {
-                        if (!FareMediaDatabase.getFareMediaDatabase().clearEntryExitRecords(cardID)) {
-                            sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
-                        } else {
-                            sender.sendMessage(ChatColor.GREEN + "The smartcard's current entry and exit records have been cleared.");
-                        }
+                        sender.sendMessage(ItemManager.resetSmartcardEntryExitRecords(cardID));
+                        return true;
                     } catch (SQLException e) {
                         e.printStackTrace();
                         sender.sendMessage(DATABASE_ERROR_MESSAGE);
@@ -141,8 +131,7 @@ public class SmartcardCommand implements CommandExecutor {
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
                     // run the subcommand
                     try {
-                        String outcome = ItemManager.issueTicket(player, agencyID, originStation, destinationStation, expiryTime);
-                        player.sendMessage(outcome);
+                        player.sendMessage(ItemManager.issueTicket(player, agencyID, originStation, destinationStation, expiryTime));
                         return true;
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -167,8 +156,7 @@ public class SmartcardCommand implements CommandExecutor {
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
                     // run the subcommand
                     try {
-                        String outcome = ItemManager.issueExitOnlyTicket(player, agencyID);
-                        player.sendMessage(outcome);
+                        player.sendMessage(ItemManager.issueExitOnlyTicket(player, agencyID));
                         return true;
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -193,6 +181,13 @@ public class SmartcardCommand implements CommandExecutor {
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
                     // run the subcommand
+                    try {
+                        player.sendMessage(ItemManager.issuePass(player, agencyID, passType));
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -210,8 +205,14 @@ public class SmartcardCommand implements CommandExecutor {
                 String agencyID = args[1];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        player.sendMessage(ItemManager.issueStaffPass(player, agencyID));
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        player.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else if (sender instanceof Player) {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -237,17 +238,9 @@ public class SmartcardCommand implements CommandExecutor {
                     // run the subcommand
                     try {
                         if (fareMediumType.equals("card")) {
-                            if (!FareMediaDatabase.getFareMediaDatabase().deleteSmartCard(fareMediumID)) {
-                                sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
-                            } else {
-                                sender.sendMessage(ChatColor.GREEN + "The smartcard has been deleted.");
-                            }
+                            sender.sendMessage(ItemManager.deleteSmartcard(fareMediumID));
                         } else {
-                            if (!FareMediaDatabase.getFareMediaDatabase().deletePass(fareMediumID)) {
-                                sender.sendMessage(ChatColor.RED + "Error: passID not found.");
-                            } else {
-                                sender.sendMessage(ChatColor.GREEN + "The pass has been deleted.");
-                            }
+                            sender.sendMessage(ItemManager.deletePass(fareMediumID));
                         }
                         return true;
                     } catch (SQLException e) {

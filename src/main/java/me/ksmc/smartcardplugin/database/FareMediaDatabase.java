@@ -144,11 +144,14 @@ public class FareMediaDatabase {
     }
 
     // Passes
-    public void createPass(String agencyID, String passType) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Passes (agency_id, pass_type) VALUES (?, ?)")) {
+    public boolean createPass(String agencyID, String passType, int tripsRemaining, String expiry) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Passes (agency_id, pass_type, trips_remaining, expiry) VALUES (?, ?, ?, ?)")) {
             preparedStatement.setString(1, agencyID);
             preparedStatement.setString(2, passType);
-            preparedStatement.executeUpdate();
+            preparedStatement.setInt(3, tripsRemaining);
+            preparedStatement.setString(4, expiry);
+
+            return preparedStatement.executeUpdate() > 0;
         }
     }
 
