@@ -2,6 +2,7 @@
 # There must be at least one transit agency.
 
 # Notes:
+# For money amount inputs, only numbers of at most two decimal places are accepted.
 # For time durations, you must use this format: "amount""unit"
 # - NO SPACE between the amount and the unit
 # - The unit can only be one of the following, and it MUST BE a single letter:
@@ -11,8 +12,8 @@
 #   - "d" for days
 #   - "w" for weeks
 # - CANNOT USE months or years as the unit since they vary in length
-# Accepted examples: "1s", "2m", "3h", "4d", "5w"
-# Unaccepted examples: "1 s", "1min", "2hrs", "1 day", "3 w", etc.
+# - Accepted examples: "1s", "2m", "3h", "4d", "5w"
+# - Unaccepted examples: "1 s", "1min", "2hrs", "1 day", "3 w", etc.
 
 # Transit agency example 1: Hong Kong's MTR
 # All features are enabled for demonstration

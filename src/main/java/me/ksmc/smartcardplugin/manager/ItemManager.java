@@ -9,15 +9,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class ItemManager {
 
     public static String issueSmartcard(Player player, String agencyID, String expiryFromLastUse) throws SQLException {
-        if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
+        if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
         }
 
@@ -47,8 +44,12 @@ public class ItemManager {
             return ChatColor.RED + "Error: The money amount input is invalid.";
         }
 
-        if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, Double.parseDouble(moneyAmount))) {
-            return ChatColor.RED + "Error: cardID not found.";
+        try {
+            if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, Double.parseDouble(moneyAmount))) {
+                return ChatColor.RED + "Error: cardID not found.";
+            }
+        } catch (NumberFormatException e) {
+            return ChatColor.RED + "Error: The money amount input is invalid.";
         }
 
         return ChatColor.GREEN + "The smartcard's balance has been updated to " + ChatColor.GOLD + "$" + moneyAmount + ChatColor.GREEN + ".";
@@ -63,7 +64,7 @@ public class ItemManager {
     }
 
     public static String issueTicket(Player player, String agencyID, String originStation, String destinationStation, String expiryTime) throws SQLException {
-        if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
+        if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
         }
 
@@ -85,7 +86,7 @@ public class ItemManager {
     }
 
     public static String issueExitOnlyTicket(Player player, String agencyID) throws SQLException {
-        if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
+        if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
         }
 
@@ -102,7 +103,7 @@ public class ItemManager {
     }
 
     public static String issuePass(Player player, String agencyID, String passType) throws SQLException {
-        if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
+        if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
         }
 
@@ -127,7 +128,7 @@ public class ItemManager {
     }
 
     public static String issueStaffPass(Player player, String agencyID) throws SQLException {
-        if (!FareMediaDatabase.getFareMediaDatabase().doesAgencyExist(agencyID)) {
+        if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
         }
 

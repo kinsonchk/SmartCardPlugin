@@ -29,7 +29,7 @@ commands:
       /<command> enquiry: For a player to manually check the details of any fare medium that they are currently holding.
       /<command> enquirystaff card/pass [cardID/passID]: Manually check the details of any specified smart card or pass.
       /<command> revenue [agencyID]: See revenue information of the specified transit operator.
-      /<command> withdraw [agencyID] [moneyAmount] [adminName]: Transfer money from a transit operator's revenue to an admin's personal balance.
+      /<command> withdraw [agencyID] [moneyAmount] [playerName]: Transfer money from a transit operator's revenue to a player's personal balance.
       
 
 permissions:

@@ -86,7 +86,7 @@ public class FareMediaDatabase {
 
 
     // Database Operations - Lookup table values
-    public boolean doesAgencyExist(String agencyID) throws SQLException {
+    public boolean agencyExists(String agencyID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM CompanyRevenue WHERE agency_id = ?")) {
             preparedStatement.setString(1, agencyID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -95,6 +95,26 @@ public class FareMediaDatabase {
             }
         }
         return false;
+    }
+
+    public Object getAgencyRevenue(String agencyID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT revenue FROM CompanyRevenue WHERE agency_id = ?")) {
+            preparedStatement.setString(1, agencyID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("revenue");
+            }
+        }
+        return null;
+    }
+
+    public boolean setAgencyRevenue(String agencyID, double newMoneyAmount) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE CompanyRevenue SET revenue = ? WHERE agency_id = ?")) {
+            preparedStatement.setDouble(1, newMoneyAmount);
+            preparedStatement.setString(2, agencyID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
     }
 
 
@@ -110,9 +130,9 @@ public class FareMediaDatabase {
         }
     }
 
-    public boolean setCardBalance(String cardID, double moneyAmount) throws SQLException {
+    public boolean setCardBalance(String cardID, double newMoneyAmount) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET balance = ? WHERE card_id = ?")) {
-            preparedStatement.setDouble(1, moneyAmount);
+            preparedStatement.setDouble(1, newMoneyAmount);
             preparedStatement.setString(2, cardID);
 
             return preparedStatement.executeUpdate() > 0;

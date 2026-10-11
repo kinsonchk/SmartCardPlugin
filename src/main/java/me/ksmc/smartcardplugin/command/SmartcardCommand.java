@@ -2,6 +2,7 @@ package me.ksmc.smartcardplugin.command;
 
 import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
+import me.ksmc.smartcardplugin.manager.EconomyManager;
 import me.ksmc.smartcardplugin.manager.ItemManager;
 import me.ksmc.smartcardplugin.util.StringFormattingUtils;
 import org.bukkit.ChatColor;
@@ -315,8 +316,14 @@ public class SmartcardCommand implements CommandExecutor {
                 String agencyID = args[1];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        sender.sendMessage(EconomyManager.lookupAgencyRevenue(agencyID));
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -331,11 +338,17 @@ public class SmartcardCommand implements CommandExecutor {
                 }
                 String agencyID = args[1];
                 String moneyAmount = args[2];
-                String adminName = args[3];
+                String playerName = args[3];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    try {
+                        sender.sendMessage(EconomyManager.depositAgencyRevenueToPlayer(agencyID, moneyAmount, playerName));
+                        return true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                    }
 
                 } else {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
