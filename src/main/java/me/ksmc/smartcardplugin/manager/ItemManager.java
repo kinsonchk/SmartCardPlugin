@@ -2,7 +2,7 @@ package me.ksmc.smartcardplugin.manager;
 
 import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
-import me.ksmc.smartcardplugin.util.StringFormattingUtils;
+import me.ksmc.smartcardplugin.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public class ItemManager {
 
         if (expiryFromLastUse != null) {
             expiryFromLastUse = expiryFromLastUse.toLowerCase(Locale.ROOT);
-            if (!StringFormattingUtils.verifyTimeString(expiryFromLastUse)) {
+            if (!StringUtils.verifyTimeString(expiryFromLastUse)) {
                 return ChatColor.RED + "Error: The expiryFromLastUse time input is invalid.";
             }
         }
@@ -40,7 +40,7 @@ public class ItemManager {
     }
 
     public static String updateSmartcardBalance(String cardID, String moneyAmount) throws SQLException {
-        if (!StringFormattingUtils.verifyMoneyString(moneyAmount)) {
+        if (!StringUtils.verifyMoneyString(moneyAmount)) {
             return ChatColor.RED + "Error: The money amount input is invalid.";
         }
 
@@ -63,7 +63,7 @@ public class ItemManager {
         return ChatColor.GREEN + "The smartcard's current entry and exit records have been cleared.";
     }
 
-    public static String issueTicket(Player player, String agencyID, String originStation, String destinationStation, String expiryTime) throws SQLException {
+    public static String issueTicket(Player player, String agencyID, String originStation, String destinationStation, String expiryDuration) throws SQLException {
         if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
         }
@@ -72,12 +72,11 @@ public class ItemManager {
             return ChatColor.RED + "Error: Tickets are not enabled for this agency.";
         }
 
-        if (expiryTime != null) {
-            expiryTime = expiryTime.toLowerCase(Locale.ROOT);
-            if (!StringFormattingUtils.verifyTimeString(expiryTime)) {
-                return ChatColor.RED + "Error: The expiryTime input is invalid.";
-            }
+        Object expiryTimestamp = StringUtils.convertExpiryToTimestamp(expiryDuration);
+        if (expiryTimestamp == null) {
+            return ChatColor.RED + "Error: The expiryTime input is invalid.";
         }
+        String expiryTime = expiryTimestamp.toString();
 
         ItemStack ticket = new ItemStack(Material.PAPER);
         player.getInventory().addItem(ticket);
@@ -94,7 +93,12 @@ public class ItemManager {
             return ChatColor.RED + "Error: Exit-only tickets are not enabled for this agency.";
         }
 
-        String expiryTime = Main.getPlugin().getConfig().getString(agencyID + ".exit-only-ticket-config.expiry", null);
+        String expiryDuration = Main.getPlugin().getConfig().getString(agencyID + ".exit-only-ticket-config.expiry", null);
+        Object expiryTimestamp = StringUtils.convertExpiryToTimestamp(expiryDuration);
+        if (expiryTimestamp == null) {
+            return ChatColor.RED + "Error: The expiryTime input is invalid.";
+        }
+        String expiryTime = expiryTimestamp.toString();
 
         ItemStack ticket = new ItemStack(Material.PAPER);
         player.getInventory().addItem(ticket);
@@ -115,7 +119,13 @@ public class ItemManager {
             return ChatColor.RED + "Error: passType not found.";
         }
         int tripsRemaining = Main.getPlugin().getConfig().getInt(agencyID + ".pass-config.pass-types." + passType + ".trips-allowed", -1);
-        String expiryTime = Main.getPlugin().getConfig().getString(agencyID + ".pass-config.pass-types." + passType + ".expiry", null);
+
+        String expiryDuration = Main.getPlugin().getConfig().getString(agencyID + ".pass-config.pass-types." + passType + ".expiry", null);
+        Object expiryTimestamp = StringUtils.convertExpiryToTimestamp(expiryDuration);
+        if (expiryTimestamp == null) {
+            return ChatColor.RED + "Error: The expiryTime input is invalid.";
+        }
+        String expiryTime = expiryTimestamp.toString();
 
         if (FareMediaDatabase.getFareMediaDatabase().createPass(agencyID, passType, tripsRemaining, expiryTime)) {
             ItemStack pass = new ItemStack(Material.BOOK);

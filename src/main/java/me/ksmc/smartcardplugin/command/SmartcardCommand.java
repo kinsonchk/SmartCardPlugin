@@ -1,10 +1,8 @@
 package me.ksmc.smartcardplugin.command;
 
 import me.ksmc.smartcardplugin.Main;
-import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.manager.EconomyManager;
 import me.ksmc.smartcardplugin.manager.ItemManager;
-import me.ksmc.smartcardplugin.util.StringFormattingUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,8 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.SQLException;
 
 public class SmartcardCommand implements CommandExecutor {
