@@ -327,7 +327,7 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
-            case "withdraw":
+            case "withdraw": {
                 if (args.length < 4) {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);
                     return false;
@@ -350,6 +350,7 @@ public class SmartcardCommand implements CommandExecutor {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
                 }
                 break;
+            }
 
             default:
                 sender.sendMessage(ChatColor.RED + "Error: Unknown subcommand.");

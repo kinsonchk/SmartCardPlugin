@@ -5,6 +5,7 @@ import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,6 +16,23 @@ import java.util.List;
 import java.util.Locale;
 
 public class ItemManager {
+
+    public static boolean isValidItem(ItemStack item) {
+        if (!item.hasItemMeta()) {
+            return false;
+        }
+
+        boolean hasAgencyIdAttribute = false;
+        for (String line : item.getItemMeta().getLore()) {
+            if (line.contains("Agency ID")) {
+                hasAgencyIdAttribute = true;
+                break;
+            }
+        }
+
+        return hasAgencyIdAttribute && item.getItemMeta().isUnbreakable();
+    }
+
 
     public static String issueSmartcard(Player player, String agencyID, String expiryFromLastUse) throws SQLException {
         if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
@@ -50,6 +68,7 @@ public class ItemManager {
         List<String> smartcardLore = new ArrayList<>();
         smartcardLore.add("Card ID: " + ChatColor.GOLD + cardID);
         smartcardLore.add("Agency ID: " + ChatColor.GOLD + agencyID);
+        smartcardLore.add("Expiry: " + ChatColor.GOLD + expiryFromLastUse + " from last use");
 
         smartcardMeta.setLore(smartcardLore);
         smartcard.setItemMeta(smartcardMeta);
@@ -112,6 +131,7 @@ public class ItemManager {
         ticketLore.add("Origin Station: " + ChatColor.GOLD + originStation);
         ticketLore.add("Destination Station: " + ChatColor.GOLD + destinationStation);
         ticketLore.add("Expiry: " + ChatColor.GOLD + expiryTime);
+        ticketLore.add("Used: " + ChatColor.GOLD + false);
 
         ticketMeta.setLore(ticketLore);
         ticket.setItemMeta(ticketMeta);
