@@ -3,6 +3,7 @@ package me.ksmc.smartcardplugin;
 import me.ksmc.smartcardplugin.command.SmartcardCommand;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.dependency.VaultAPI;
+import me.ksmc.smartcardplugin.listener.SignInteractListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -31,6 +32,8 @@ public final class Main extends JavaPlugin {
 
         VaultAPI.initializeVault();
 
+
+        getServer().getPluginManager().registerEvents(new SignInteractListener(), this);
 
         getCommand("smartcard").setExecutor(new SmartcardCommand());
 

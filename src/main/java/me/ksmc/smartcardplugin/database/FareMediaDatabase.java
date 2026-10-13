@@ -120,13 +120,19 @@ public class FareMediaDatabase {
 
     // Database Operations - Modify table values
     // Smartcards
-    public boolean createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
+    public Object createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use) VALUES (?, ?)")) {
             preparedStatement.setString(1, agencyID);
             preparedStatement.setString(2, expiryFromLastUse);
-            int executeResult = preparedStatement.executeUpdate();  // executeResult will be 1 if the SQL database operation was successful
 
-            return executeResult > 0;  // then the function will return true
+            if (preparedStatement.executeUpdate() > 0) {  // will be true if the SQL database operation was successful
+                ResultSet resultSet = preparedStatement.getGeneratedKeys();
+                if (resultSet.next()) {
+                    return resultSet.getString(1);  // returns the generated cardID
+                }
+            }
+
+            return null;
         }
     }
 
@@ -164,14 +170,21 @@ public class FareMediaDatabase {
     }
 
     // Passes
-    public boolean createPass(String agencyID, String passType, int tripsRemaining, String expiry) throws SQLException {
+    public Object createPass(String agencyID, String passType, int tripsRemaining, String expiry) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Passes (agency_id, pass_type, trips_remaining, expiry) VALUES (?, ?, ?, ?)")) {
             preparedStatement.setString(1, agencyID);
             preparedStatement.setString(2, passType);
             preparedStatement.setInt(3, tripsRemaining);
             preparedStatement.setString(4, expiry);
 
-            return preparedStatement.executeUpdate() > 0;
+            if (preparedStatement.executeUpdate() > 0) {
+                ResultSet resultSet = preparedStatement.getGeneratedKeys();
+                if (resultSet.next()) {
+                    return resultSet.getString(1);  // returns the generated passID
+                }
+            }
+
+            return null;
         }
     }
 

@@ -22,9 +22,9 @@ To use a smart card: right-click on designated signs while holding the card to a
 A card can be manually deleted from the system by an admin using "/smartcard delete card cardID".
 
 ### 1.2 Tickets
-Tickets are represented as customized paper items in Minecraft. Tickets do not have IDs. A ticket is only usable within the transportation system of the transit operator that issued it.
+Tickets do not have IDs. A ticket is only usable within the transportation system of the transit operator that issued it.
 #### 1.2.1 Single-Journey Tickets
-As the name suggests, these can only be used for a single trip.
+A single-journey ticket is represented as a customized paper item in Minecraft. As the name suggests, these can only be used for a single trip.
 
 To obtain a ticket: players must buy one from a self-service machine. An admin (or staff) can manually obtain a ticket and specify its expiry time using "/smartcard ticket agencyID origin destination expiryTime" for no cost.
 
@@ -33,13 +33,17 @@ Each ticket is linked to the transit operator that issued it. The ticket stores 
 To use a ticket: right-click on designated signs while holding the ticket to activate fare gates/validators.
 
 #### 1.2.2 Exit-only Tickets
+An exit-only ticket is represented as a customized iron nugget in Minecraft.
+
 Should a player lose their smart card/ticket/transit pass during their journey, as long as they have a personal balance greater than $0, they can purchase an exit-only ticket for a surcharge (can be set per transit operator; usually the highest possible fare within the transportation network) using a self-service machine. They can use it at an exit fare gate to leave the transportation system. An exit-only ticket can only be used at an exit fare gate/validator once.
 
 An admin (or staff) can manually obtain an exit-only ticket using "/smartcard exitonly agencyID" for no cost.
 
 ### 1.3 Passes (Storing Trip-based/Pre-defined Fares)
-Transit passes are represented as customized books in Minecraft. Relatable examples in real life: Montreal's OPUS card system.
+Relatable examples in real life: Montreal's OPUS card system
 #### 1.3.1 Transit Passes
+Transit passes are represented as customized books in Minecraft.
+
 Each transit operator can define multiple pass types (each type to be identified by a passType) for different purposes. For example: a day/week/month pass, or a 1/2/10-trip pass, or a single/multi/all-zone pass, or a combination of them.
 
 To obtain a pass: players must buy one from a self-service machine. An admin (or staff) can manually obtain a pass using "/smartcard getpass agencyID passType" for no cost.
@@ -50,6 +54,8 @@ To use a pass: right-click on designated signs while holding the pass to activat
 
 A pass can be manually deleted from the system by an admin using "/smartcard delete pass passID".
 #### 1.3.2 Staff Passes
+Staff passes are represented as customized trial keys in Minecraft.
+
 Staff passes allow pass holders (usually staff members) to travel for free and access restricted areas. A staff pass can activate any fare validation device with no cost. A staff pass is only usable within the transportation system of the transit operator that issued it.
 
 A staff pass does not have an ID. A staff pass cannot be obtained by an ordinary player. An admin (or staff) can manually obtain a staff pass using "/smartcard staffpass agencyID".
