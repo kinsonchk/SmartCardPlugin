@@ -4,6 +4,7 @@ import me.ksmc.smartcardplugin.Main;
 import org.bukkit.Bukkit;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.logging.Level;
 
 public class FareMediaDatabase {
@@ -61,6 +62,9 @@ public class FareMediaDatabase {
             // Disable the plugin if couldn't connect to the database
             Bukkit.getPluginManager().disablePlugin(Main.getPlugin());
         }
+
+        // TODO
+        // synchronize the list of agencies defined in config.yml with the CompanyRevenue table in the database
     }
 
     public static FareMediaDatabase getFareMediaDatabase() {
@@ -134,6 +138,17 @@ public class FareMediaDatabase {
         }
     }
 
+    public Object getCardBalance(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("balance");
+            }
+        }
+        return null;
+    }
+
     public boolean setCardBalance(String cardID, double newMoneyAmount) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET balance = ? WHERE card_id = ?")) {
             preparedStatement.setDouble(1, newMoneyAmount);
@@ -143,18 +158,18 @@ public class FareMediaDatabase {
         }
     }
 
-    public boolean createEntryRecord(String cardID, String agencyID, String stationCode, String timestamp) throws SQLException {
+    public boolean createEntryRecord(String cardID, String agencyID, String stationCode) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
-            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + timestamp);
+            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + Instant.now().toString());
             preparedStatement.setString(2, cardID);
 
             return preparedStatement.executeUpdate() > 0;
         }
     }
 
-    public boolean createExitRecord(String cardID, String agencyID, String stationCode, String timestamp) throws SQLException {
+    public boolean createExitRecord(String cardID, String agencyID, String stationCode) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET exit_record = ? WHERE card_id = ?")) {
-            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + timestamp);
+            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + Instant.now().toString());
             preparedStatement.setString(2, cardID);
 
             return preparedStatement.executeUpdate() > 0;

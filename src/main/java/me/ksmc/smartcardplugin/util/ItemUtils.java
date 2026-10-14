@@ -1,26 +1,12 @@
 package me.ksmc.smartcardplugin.util;
 
 import me.ksmc.smartcardplugin.Main;
+import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.SQLException;
+
 public class ItemUtils {
-
-    public static boolean isValidFareMedium(ItemStack item) {
-        if (!item.hasItemMeta()) {
-            return false;
-        }
-
-        boolean hasAgencyIdAttribute = false;
-        for (String line : item.getItemMeta().getLore()) {
-            if (line.contains("Agency ID")) {
-                hasAgencyIdAttribute = true;
-                break;
-            }
-        }
-
-        return hasAgencyIdAttribute && item.getItemMeta().isUnbreakable();
-    }
-
 
     public static String getCompanyName(String agencyID) {
         return Main.getPlugin().getConfig().getString(agencyID + ".company-name");

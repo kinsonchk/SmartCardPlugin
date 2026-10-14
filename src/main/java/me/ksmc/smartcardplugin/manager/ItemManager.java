@@ -17,6 +17,23 @@ import java.util.Locale;
 
 public class ItemManager {
 
+    public static boolean isValidFareMedium(ItemStack item) {
+        if (!item.hasItemMeta()) {
+            return false;
+        }
+
+        boolean hasAgencyIdAttribute = false;
+        for (String line : item.getItemMeta().getLore()) {
+            if (line.contains("Agency ID")) {
+                hasAgencyIdAttribute = true;
+                break;
+            }
+        }
+
+        return hasAgencyIdAttribute && item.getItemMeta().isUnbreakable();
+    }
+
+
     public static String issueSmartcard(Player player, String agencyID, String expiryFromLastUse) throws SQLException {
         if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";
@@ -59,6 +76,14 @@ public class ItemManager {
         player.getInventory().addItem(smartcard);
 
         return ChatColor.GREEN + "The smartcard has been issued.";
+    }
+
+    public static String getSmartcardBalance(String cardID) throws SQLException {
+        Object balance = FareMediaDatabase.getFareMediaDatabase().getCardBalance(cardID);
+        if (balance == null) {
+            return null;
+        }
+        return balance.toString();
     }
 
     public static String updateSmartcardBalance(String cardID, String moneyAmount) throws SQLException {

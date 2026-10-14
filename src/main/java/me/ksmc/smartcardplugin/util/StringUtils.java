@@ -1,5 +1,8 @@
 package me.ksmc.smartcardplugin.util;
 
+import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemStack;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -48,5 +51,12 @@ public class StringUtils {
         return expiryTimestamp;
     }
 
+
+    public static String getCardIdFromLore(ItemStack smartcard) {
+        String rawLore = ChatColor.stripColor(smartcard.getItemMeta().getLore().get(0));
+
+        return rawLore.replace("Card ID: ", "").trim();
+
+    }
 
 }
