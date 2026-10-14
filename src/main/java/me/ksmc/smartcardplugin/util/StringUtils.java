@@ -10,11 +10,11 @@ public class StringUtils {
     public static final String TIME_STRING_FORMAT = "^(\\d+)([smhdw])$";
     public static final String MONEY_STRING_FORMAT = "^-?(0|[1-9]\\d*)(\\.\\d{1,2})?$";  // only allows a double with at most 2 decimal places
 
-    public static boolean verifyTimeString(String string) {
+    public static boolean validTimeString(String string) {
         return string != null && string.matches(TIME_STRING_FORMAT);
     }
 
-    public static boolean verifyMoneyString(String string) {
+    public static boolean validMoneyString(String string) {
         return string != null && string.matches(MONEY_STRING_FORMAT);
     }
 
@@ -23,7 +23,7 @@ public class StringUtils {
             return null;
         }
         expiryDuration = expiryDuration.toLowerCase(Locale.ROOT);
-        if (!verifyTimeString(expiryDuration)) {
+        if (!validTimeString(expiryDuration)) {
             return null;
         }
 

@@ -1,8 +1,8 @@
 package me.ksmc.smartcardplugin.manager;
 
-import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.dependency.VaultAPI;
+import me.ksmc.smartcardplugin.util.ItemUtils;
 import me.ksmc.smartcardplugin.util.StringUtils;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -53,7 +53,7 @@ public class EconomyManager {
             return ChatColor.RED + "Error: Database error.";
         }
 
-        String companyName = Main.getPlugin().getConfig().getString(agencyID + ".company-name");
+        String companyName = ItemUtils.getCompanyName(agencyID);
 
         return ChatColor.GREEN + companyName + "'s current revenue: " + ChatColor.GOLD + "$" + revenue;
     }
@@ -68,7 +68,7 @@ public class EconomyManager {
             return ChatColor.RED + "Error: Player not found/online.";
         }
 
-        if (!StringUtils.verifyMoneyString(moneyAmount)) {
+        if (!StringUtils.validMoneyString(moneyAmount)) {
             return ChatColor.RED + "Error: The money amount input is invalid.";
         }
 
@@ -103,7 +103,7 @@ public class EconomyManager {
             return ChatColor.RED + "Error: Transaction error. No money transferred.";
         }
 
-        String companyName = Main.getPlugin().getConfig().getString(agencyID + ".company-name");
+        String companyName = ItemUtils.getCompanyName(agencyID);
 
         return ChatColor.GOLD + "$" + moneyAmountToDeposit + ChatColor.GREEN + " has been deposited to " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " from " + companyName + ".";
     }

@@ -1,8 +1,8 @@
 package me.ksmc.smartcardplugin.command;
 
-import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.manager.EconomyManager;
 import me.ksmc.smartcardplugin.manager.ItemManager;
+import me.ksmc.smartcardplugin.util.ItemUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -40,14 +40,13 @@ public class SmartcardCommand implements CommandExecutor {
                     expiryFromLastUse = args[2];
                 } else {
                     // get the default value from config.yml; if failed to get, the value will be null
-                    expiryFromLastUse = Main.getPlugin().getConfig().getString(agencyID + ".smart-card-config.card-expiry-from-last-use", null);
+                    expiryFromLastUse = ItemUtils.getCardExpiryFromLastUseDefaultValue(agencyID);
                 }
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
                     // run the subcommand
                     try {
-                        String outcome = ItemManager.issueSmartcard(player, agencyID, expiryFromLastUse);
-                        player.sendMessage(outcome);
+                        player.sendMessage(ItemManager.issueSmartcard(player, agencyID, expiryFromLastUse));
                         return true;
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -122,7 +121,7 @@ public class SmartcardCommand implements CommandExecutor {
                 if (args.length > 4) {
                     expiryTime = args[4];
                 } else {
-                    expiryTime = Main.getPlugin().getConfig().getString(agencyID + ".single-journey-ticket-config.expiry", null);
+                    expiryTime = ItemUtils.getTicketExpiryDefaultValue(agencyID);
                 }
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION)) {
@@ -251,6 +250,7 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
+            // TODO
             case "machine": {
                 if (args.length < 2) {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);
@@ -272,6 +272,7 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
+            // TODO
             case "enquiry": {
                 if (sender instanceof Player player) {
                     sender.sendMessage("Success!");
@@ -283,6 +284,7 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
+            // TODO
             case "enquirystaff": {
                 if (args.length < 3) {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);

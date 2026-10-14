@@ -85,7 +85,7 @@ public class FareMediaDatabase {
     }
 
 
-    // Database Operations - Lookup table values
+    // Database Operations
     public boolean agencyExists(String agencyID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM CompanyRevenue WHERE agency_id = ?")) {
             preparedStatement.setString(1, agencyID);
@@ -118,8 +118,6 @@ public class FareMediaDatabase {
     }
 
 
-    // Database Operations - Modify table values
-    // Smartcards
     public Object createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use) VALUES (?, ?)")) {
             preparedStatement.setString(1, agencyID);
@@ -145,13 +143,23 @@ public class FareMediaDatabase {
         }
     }
 
-//    public void createEntryRecord(String cardID, String stationCode) throws SQLException {
-//        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
-//            preparedStatement.setString(1, agencyID);
-//            preparedStatement.setString(2, agencyID);
-//            preparedStatement.executeUpdate();
-//        }
-//    }
+    public boolean createEntryRecord(String cardID, String agencyID, String stationCode, String timestamp) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
+            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + timestamp);
+            preparedStatement.setString(2, cardID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
+    }
+
+    public boolean createExitRecord(String cardID, String agencyID, String stationCode, String timestamp) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET exit_record = ? WHERE card_id = ?")) {
+            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + timestamp);
+            preparedStatement.setString(2, cardID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
+    }
 
     public boolean clearEntryExitRecords(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = NULL, exit_record = NULL WHERE card_id = ?")) {
@@ -161,6 +169,10 @@ public class FareMediaDatabase {
         }
     }
 
+//    public boolean createTransactionRecord()  throws SQLException {
+//
+//    }
+
     public boolean deleteSmartCard(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM SmartCards WHERE card_id = ?")) {
             preparedStatement.setString(1, cardID);
@@ -169,7 +181,7 @@ public class FareMediaDatabase {
         }
     }
 
-    // Passes
+
     public Object createPass(String agencyID, String passType, int tripsRemaining, String expiry) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Passes (agency_id, pass_type, trips_remaining, expiry) VALUES (?, ?, ?, ?)")) {
             preparedStatement.setString(1, agencyID);
@@ -195,7 +207,6 @@ public class FareMediaDatabase {
             return preparedStatement.executeUpdate() > 0;
         }
     }
-
 
 
 }

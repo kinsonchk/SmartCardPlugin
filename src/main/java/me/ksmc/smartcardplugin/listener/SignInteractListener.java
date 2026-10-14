@@ -1,9 +1,9 @@
 package me.ksmc.smartcardplugin.listener;
 
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
-import me.ksmc.smartcardplugin.manager.ItemManager;
 import me.ksmc.smartcardplugin.manager.device.EntryDeviceManager;
 import me.ksmc.smartcardplugin.manager.device.ExitDeviceManager;
+import me.ksmc.smartcardplugin.util.ItemUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
@@ -55,7 +55,7 @@ public class SignInteractListener implements Listener {
                 player.sendMessage(ChatColor.GREEN + "TICKET SUCCESS!");
 
             } else {
-                if (ItemManager.isValidItem(item)) {
+                if (ItemUtils.isValidFareMedium(item)) {
                     event.setCancelled(true);
                     player.sendMessage(ChatColor.GREEN + "DEVICE SUCCESS!");
 
