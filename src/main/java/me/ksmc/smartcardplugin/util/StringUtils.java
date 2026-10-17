@@ -54,9 +54,13 @@ public class StringUtils {
 
     public static String getCardIdFromLore(ItemStack smartcard) {
         String rawLore = ChatColor.stripColor(smartcard.getItemMeta().getLore().get(0));
-
         return rawLore.replace("Card ID: ", "").trim();
 
+    }
+
+    public static String getStaffPassAgencyIdFromLore(ItemStack staffPass) {
+        String rawLore = ChatColor.stripColor(staffPass.getItemMeta().getLore().get(0));
+        return rawLore.replace("Agency ID: ", "").trim();
     }
 
 }

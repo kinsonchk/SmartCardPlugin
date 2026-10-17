@@ -4,7 +4,9 @@ import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.manager.ItemManager;
 import me.ksmc.smartcardplugin.manager.device.EntryDeviceManager;
 import me.ksmc.smartcardplugin.manager.device.ExitDeviceManager;
-import me.ksmc.smartcardplugin.util.ItemUtils;
+import me.ksmc.smartcardplugin.manager.device.PayDeviceManager;
+import me.ksmc.smartcardplugin.manager.device.StaffDeviceManager;
+import me.ksmc.smartcardplugin.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
@@ -33,6 +35,7 @@ public class SignInteractListener implements Listener {
 
             String[] line2Args = lines[1].split(" ");
             if (line2Args.length < 1) {
+                player.sendMessage(ChatColor.RED + "Error: Agency not specified.");
                 return;
             }
 
@@ -58,7 +61,6 @@ public class SignInteractListener implements Listener {
             } else {
                 if (ItemManager.isValidFareMedium(item)) {
                     event.setCancelled(true);
-                    player.sendMessage(ChatColor.GREEN + "DEVICE SUCCESS!");
 
                     switch (lines[0]) {
                         case "[Entry Gate]", "[Entry Validator]", "[Exit Gate]", "[Exit Validator]": {
@@ -66,20 +68,27 @@ public class SignInteractListener implements Listener {
                             String additionalMoney = null;
                             if (line2Args.length > 1) {
                                 stationCode = line2Args[1];
+                            } else {
+                                player.sendMessage(ChatColor.RED + "Error: Station code not specified.");
+                                return;
                             }
                             if (line2Args.length > 2) {
                                 additionalMoney = line2Args[2];
+                                if (!StringUtils.validMoneyString(additionalMoney)) {
+                                    player.sendMessage(ChatColor.RED + "Error: The money amount string is invalid.");
+                                    return;
+                                }
                             }
 
                             switch (lines[0]) {
                                 case "[Entry Gate]" ->
-                                        player.sendMessage(EntryDeviceManager.activateEntryDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(EntryDeviceManager.activateDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
                                 case "[Entry Validator]" ->
-                                        player.sendMessage(EntryDeviceManager.activateEntryDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(EntryDeviceManager.activateDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
                                 case "[Exit Gate]" ->
-                                        player.sendMessage(ExitDeviceManager.activateExitDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(ExitDeviceManager.activateDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
                                 case "[Exit Validator]" ->
-                                        player.sendMessage(ExitDeviceManager.activateExitDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(ExitDeviceManager.activateDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
                             }
 
                             break;
@@ -90,28 +99,35 @@ public class SignInteractListener implements Listener {
                             String stationCode = null;
                             if (line2Args.length > 1) {
                                 moneyAmount = line2Args[1];
+                                if (!StringUtils.validMoneyString(moneyAmount)) {
+                                    player.sendMessage(ChatColor.RED + "Error: The money amount string is invalid.");
+                                    return;
+                                }
+                            } else {
+                                player.sendMessage(ChatColor.RED + "Error: Station code not specified.");
+                                return;
                             }
                             if (line2Args.length > 2) {
                                 stationCode = line2Args[2];
                             }
 
-//                            switch (lines[0]) {
-//                                case "[Pay Gate]" ->
-//                                        player.sendMessage(EntryDeviceManager.activateEntryDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
-//                                case "[Pay Validator]" ->
-//                                        player.sendMessage(EntryDeviceManager.activateEntryDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
-//                            }
+                            switch (lines[0]) {
+                                case "[Pay Gate]" ->
+                                        player.sendMessage(PayDeviceManager.activateDevice("gate", sign, item, agencyID, moneyAmount, stationCode));
+                                case "[Pay Validator]" ->
+                                        player.sendMessage(PayDeviceManager.activateDevice("validator", sign, item, agencyID, moneyAmount, stationCode));
+                            }
 
                             break;
                         }
 
                         case "[Staff Gate]", "[Staff Validator]": {
-//                            switch (lines[0]) {
-//                                case "[Staff Gate]" ->
-//                                        player.sendMessage(EntryDeviceManager.activateEntryDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
-//                                case "[Staff Validator]" ->
-//                                        player.sendMessage(EntryDeviceManager.activateEntryDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
-//                            }
+                            switch (lines[0]) {
+                                case "[Staff Gate]" ->
+                                        player.sendMessage(StaffDeviceManager.activateDevice("gate", sign, item, agencyID));
+                                case "[Staff Validator]" ->
+                                        player.sendMessage(StaffDeviceManager.activateDevice("validator", sign, item, agencyID));
+                            }
 
                             break;
                         }
