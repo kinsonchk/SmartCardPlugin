@@ -14,7 +14,7 @@ public class EntryDeviceManager {
     public static String activateDevice(String deviceType, Sign deviceSign, ItemStack fareMedium, String specifiedAgencyId, String stationCode, String additionalMoney) throws SQLException {
 
         if (fareMedium.getType() == Material.NAME_TAG) {  // smartcard
-            String cardID = StringUtils.getCardIdFromLore(fareMedium);
+            String cardID = StringUtils.getCardOrPassIdFromLore(fareMedium);
 
 //            String cardBalanceRaw = ItemManager.getSmartcardBalance(cardID);
 //            if (cardBalanceRaw == null) {
@@ -32,9 +32,10 @@ public class EntryDeviceManager {
         } else if (fareMedium.getType() == Material.BOOK) {  // pass
 
         } else if (fareMedium.getType() == Material.IRON_NUGGET) {  // exit-only ticket
+            return ChatColor.RED + "Error: Exit-only tickets can only be used with exit devices.";
 
         } else if (fareMedium.getType() == Material.TRIAL_KEY) {  // staff pass
-            String agencyIdOnStaffPass = StringUtils.getStaffPassAgencyIdFromLore(fareMedium);
+            String agencyIdOnStaffPass = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnStaffPass.equals(specifiedAgencyId)) {
                 return ChatColor.RED + "Error: The agencyID on the staff pass does not match with the one specified on the device.";
             }

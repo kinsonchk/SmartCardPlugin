@@ -14,7 +14,7 @@ public class StaffDeviceManager {
             return ChatColor.RED + "Error: Staff devices must be activated with a staff pass.";
         }
 
-        String agencyIdOnStaffPass = StringUtils.getStaffPassAgencyIdFromLore(fareMedium);
+        String agencyIdOnStaffPass = StringUtils.getAgencyIdFromLore(fareMedium);
         if (!agencyIdOnStaffPass.equals(specifiedAgencyId)) {
             return ChatColor.RED + "Error: The agencyID on the staff pass does not match with the one specified on the device.";
         }

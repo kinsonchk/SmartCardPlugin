@@ -52,13 +52,18 @@ public class StringUtils {
     }
 
 
-    public static String getCardIdFromLore(ItemStack smartcard) {
+    public static String getCardOrPassIdFromLore(ItemStack smartcard) {
         String rawLore = ChatColor.stripColor(smartcard.getItemMeta().getLore().get(0));
         return rawLore.replace("Card ID: ", "").trim();
 
     }
 
-    public static String getStaffPassAgencyIdFromLore(ItemStack staffPass) {
+    public static String getCardOrPassAgencyIdFromLore(ItemStack staffPass) {
+        String rawLore = ChatColor.stripColor(staffPass.getItemMeta().getLore().get(1));  // STORED ON THE 2ND LINE!!!
+        return rawLore.replace("Agency ID: ", "").trim();
+    }
+
+    public static String getAgencyIdFromLore(ItemStack staffPass) {
         String rawLore = ChatColor.stripColor(staffPass.getItemMeta().getLore().get(0));
         return rawLore.replace("Agency ID: ", "").trim();
     }
