@@ -68,4 +68,19 @@ public class StringUtils {
         return rawLore.replace("Agency ID: ", "").trim();
     }
 
+    public static String getTicketOriginStationFromLore(ItemStack ticket) {
+        String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(1));
+        return rawLore.replace("Origin Station: ", "").trim();
+    }
+
+    public static String getTicketDestinationStationFromLore(ItemStack ticket) {
+        String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(2));
+        return rawLore.replace("Destination Station: ", "").trim();
+    }
+
+    public static String getTicketUsedStateFromLore(ItemStack ticket) {
+        String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(4));
+        return rawLore.replace("Used: ", "").trim();
+    }
+
 }

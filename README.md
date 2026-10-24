@@ -107,12 +107,12 @@ Fare validation devices are represented as customized signs. The signs must use 
 
 Each device can be serving one of these functions; each function requires certain arguments to be present on the sign to work:
 
-| deviceFunction | line2Arguments (optional argument) | Example | Description                                                                                                   |
-| -------------- | ---------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
-| Entry          | stationCode/Zone (additionalMoney) | ADM     | Entry point to a transportation network; additionalMoney to collect when activated, can leave blank           |
-| Exit           | stationCode/Zone (additionalMoney) | 3 12.5  | Exit point of a transportation network; additionalMoney to collect when activated, can leave blank            |
-| Pay            | moneyAmount (stationCode/Zone)     | 45.6    | Deduct money directly from the card when used; stationCode/Zone is used for certain purposes, can leave blank |
-| Staff          |                                    | Staff   | Can only be used with staff passes; there are no arguments                                                    |
+| deviceFunction | line2Arguments (optional argument) | Example | Description                                                                                                                                          |
+| -------------- | ---------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entry          | stationCode/Zone                   | ADM     | Entry point to a transportation network                                                                                                              |
+| Exit           | stationCode/Zone                   | 3 12.5  | Exit point of a transportation network                                                                                                               |
+| Pay            | moneyAmount (stationCode/Zone)     | 45.6    | Deduct money directly from the card when used (not applicable to tickets or passes); stationCode/Zone is for the use of tickets or passes (optional) |
+| Staff          |                                    | Staff   | Can only be used with staff passes; there are no arguments                                                                                           |
 
 If there are issues (not caused by a player attempting to fare evade) with a smart card, an admin can manually reset (clear) the current entry and exit record on the card with "/smartcard fixcard cardID".
 

@@ -82,13 +82,13 @@ public class SignInteractListener implements Listener {
 
                             switch (lines[0]) {
                                 case "[Entry Gate]" ->
-                                        player.sendMessage(EntryDeviceManager.activateDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(EntryDeviceManager.activateDevice("gate", sign, player, item, agencyID, stationCode));
                                 case "[Entry Validator]" ->
-                                        player.sendMessage(EntryDeviceManager.activateDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(EntryDeviceManager.activateDevice("validator", sign, player, item, agencyID, stationCode));
                                 case "[Exit Gate]" ->
-                                        player.sendMessage(ExitDeviceManager.activateDevice("gate", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(ExitDeviceManager.activateDevice("gate", sign, player, item, agencyID, stationCode));
                                 case "[Exit Validator]" ->
-                                        player.sendMessage(ExitDeviceManager.activateDevice("validator", sign, item, agencyID, stationCode, additionalMoney));
+                                        player.sendMessage(ExitDeviceManager.activateDevice("validator", sign, player, item, agencyID, stationCode));
                             }
 
                             break;
@@ -113,9 +113,9 @@ public class SignInteractListener implements Listener {
 
                             switch (lines[0]) {
                                 case "[Pay Gate]" ->
-                                        player.sendMessage(PayDeviceManager.activateDevice("gate", sign, item, agencyID, moneyAmount, stationCode));
+                                        player.sendMessage(PayDeviceManager.activateDevice("gate", sign, player, item, agencyID, moneyAmount, stationCode));
                                 case "[Pay Validator]" ->
-                                        player.sendMessage(PayDeviceManager.activateDevice("validator", sign, item, agencyID, moneyAmount, stationCode));
+                                        player.sendMessage(PayDeviceManager.activateDevice("validator", sign, player, item, agencyID, moneyAmount, stationCode));
                             }
 
                             break;

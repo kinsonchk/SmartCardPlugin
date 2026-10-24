@@ -1,6 +1,5 @@
 package me.ksmc.smartcardplugin.manager;
 
-import me.ksmc.smartcardplugin.Main;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.util.ItemUtils;
 import me.ksmc.smartcardplugin.util.StringUtils;
@@ -158,8 +157,21 @@ public class ItemManager {
         return ChatColor.GREEN + "The ticket has been issued.";
     }
 
-    public boolean confiscateTicket() {
+    public static boolean ticketUsed(ItemStack ticket) {
+        if (StringUtils.getTicketUsedStateFromLore(ticket).equals("true")) {
+            return true;
+        }
         return false;
+    }
+
+    public static void updateTicketToUsedState(ItemStack ticket) {
+        ItemMeta ticketMeta = ticket.getItemMeta();
+
+        List<String> ticketLore = ticketMeta.getLore();
+        ticketLore.set(4, "Used: " + ChatColor.GOLD + true);
+
+        ticketMeta.setLore(ticketLore);
+        ticket.setItemMeta(ticketMeta);
     }
 
 
@@ -198,6 +210,10 @@ public class ItemManager {
         player.getInventory().addItem(exitOnlyTicket);
 
         return ChatColor.GREEN + "The exit-only ticket has been issued.";
+    }
+
+    public static void confiscateTicket(Player player, ItemStack ticket) {
+        player.getInventory().removeItem(ticket);
     }
 
 
