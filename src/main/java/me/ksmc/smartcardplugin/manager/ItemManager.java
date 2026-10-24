@@ -21,6 +21,10 @@ public class ItemManager {
             return false;
         }
 
+        if (!item.getItemMeta().hasLore()) {
+            return false;
+        }
+
         boolean hasAgencyIdAttribute = false;
         for (String line : item.getItemMeta().getLore()) {
             if (line.contains("Agency ID")) {

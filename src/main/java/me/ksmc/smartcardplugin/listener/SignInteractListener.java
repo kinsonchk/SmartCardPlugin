@@ -34,18 +34,13 @@ public class SignInteractListener implements Listener {
             String[] lines = sign.getSide(Side.FRONT).getLines();
 
             String[] line2Args = lines[1].split(" ");
-            if (line2Args.length < 1) {
-                player.sendMessage(ChatColor.RED + "Error: Agency not specified.");
-                return;
-            }
-
             String agencyID = line2Args[0];
-            if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
-                player.sendMessage(ChatColor.RED + "Error: Agency not found.");
-                return;
-            }
 
             if (lines[0].equals("[Tickets]")) {
+                if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
+                    player.sendMessage(ChatColor.RED + "Error: Agency not found.");
+                    return;
+                }
                 event.setCancelled(true);
 
                 String currentStation = null;
@@ -60,12 +55,16 @@ public class SignInteractListener implements Listener {
 
             } else {
                 if (ItemManager.isValidFareMedium(item)) {
+                    if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
+                        player.sendMessage(ChatColor.RED + "Error: Agency not found.");
+                        return;
+                    }
                     event.setCancelled(true);
 
                     switch (lines[0]) {
                         case "[Entry Gate]", "[Entry Validator]", "[Exit Gate]", "[Exit Validator]": {
-                            String stationCode = null;
-                            String additionalMoney = null;
+                            String stationCode;
+                            String additionalMoney;
                             if (line2Args.length > 1) {
                                 stationCode = line2Args[1];
                             } else {
