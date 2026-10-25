@@ -1,8 +1,10 @@
 package me.ksmc.smartcardplugin.util;
 
+import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -61,6 +63,11 @@ public class StringUtils {
     public static String getCardOrPassAgencyIdFromLore(ItemStack staffPass) {
         String rawLore = ChatColor.stripColor(staffPass.getItemMeta().getLore().get(1));  // STORED ON THE 2ND LINE!!!
         return rawLore.replace("Agency ID: ", "").trim();
+    }
+
+    public static String getAgencyIdOnCardEntryRecord(String cardID) throws SQLException {
+        String rawEntryRecord = FareMediaDatabase.getFareMediaDatabase().getEntryRecord(cardID);
+        return rawEntryRecord.split(":")[0];
     }
 
     public static String getAgencyIdFromLore(ItemStack staffPass) {

@@ -64,19 +64,11 @@ public class SignInteractListener implements Listener {
                     switch (lines[0]) {
                         case "[Entry Gate]", "[Entry Validator]", "[Exit Gate]", "[Exit Validator]": {
                             String stationCode;
-                            String additionalMoney;
                             if (line2Args.length > 1) {
                                 stationCode = line2Args[1];
                             } else {
                                 player.sendMessage(ChatColor.RED + "Error: Station code not specified.");
                                 return;
-                            }
-                            if (line2Args.length > 2) {
-                                additionalMoney = line2Args[2];
-                                if (!StringUtils.validMoneyString(additionalMoney)) {
-                                    player.sendMessage(ChatColor.RED + "Error: The money amount string is invalid.");
-                                    return;
-                                }
                             }
 
                             switch (lines[0]) {

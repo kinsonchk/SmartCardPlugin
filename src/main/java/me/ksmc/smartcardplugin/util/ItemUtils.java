@@ -21,6 +21,10 @@ public class ItemUtils {
         return Main.getPlugin().getConfig().getString(agencyID + ".smart-card-config.card-brand-name");
     }
 
+    public static double getCardPenaltyFee(String agencyID) {
+        return Main.getPlugin().getConfig().getDouble(agencyID + ".smart-card-config.penalty-fee", 0);
+    }
+
     public static String getCardExpiryFromLastUseDefaultValue(String agencyID) {
         return Main.getPlugin().getConfig().getString(agencyID + ".smart-card-config.card-expiry-from-last-use", null);
     }

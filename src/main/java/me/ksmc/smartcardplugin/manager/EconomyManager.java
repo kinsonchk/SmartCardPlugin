@@ -58,6 +58,12 @@ public class EconomyManager {
         return ChatColor.GREEN + companyName + "'s current revenue: " + ChatColor.GOLD + "$" + revenue;
     }
 
+    public static void addAgencyRevenue(String agencyID, double amount) throws SQLException {
+        double agencyCurrentRevenue = (double) FareMediaDatabase.getFareMediaDatabase().getAgencyRevenue(agencyID);
+        double agencyNewRevenue = agencyCurrentRevenue + amount;
+        FareMediaDatabase.getFareMediaDatabase().setAgencyRevenue(agencyID, agencyNewRevenue);
+    }
+
     public static String depositAgencyRevenueToPlayer(String agencyID, String moneyAmount, String playerName) throws SQLException {
         if (!FareMediaDatabase.getFareMediaDatabase().agencyExists(agencyID)) {
             return ChatColor.RED + "Error: Agency not found.";

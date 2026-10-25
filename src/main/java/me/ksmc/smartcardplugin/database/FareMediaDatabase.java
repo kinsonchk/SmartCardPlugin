@@ -158,6 +158,28 @@ public class FareMediaDatabase {
         }
     }
 
+    public boolean hasEntryRecord(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT entry_record FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("entry_record") != null;
+            }
+        }
+        return false;
+    }
+
+    public String getEntryRecord(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT entry_record FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("entry_record");
+            }
+        }
+        return null;
+    }
+
     public boolean createEntryRecord(String cardID, String agencyID, String stationCode) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
             preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + Instant.now().toString());
@@ -165,6 +187,28 @@ public class FareMediaDatabase {
 
             return preparedStatement.executeUpdate() > 0;
         }
+    }
+
+    public boolean hasExitRecord(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT exit_record FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("exit_record") != null;
+            }
+        }
+        return false;
+    }
+
+    public String getExitRecord(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT exit_record FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("exit_record");
+            }
+        }
+        return null;
     }
 
     public boolean createExitRecord(String cardID, String agencyID, String stationCode) throws SQLException {
