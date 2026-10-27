@@ -20,7 +20,7 @@ public class EntryDeviceManager {
         if (fareMedium.getType() == Material.NAME_TAG) {  // smartcard
             String cardID = StringUtils.getCardOrPassIdFromLore(fareMedium);
 
-            // CHECK IF THE SMARTCARD HAS EXPIRED ALR
+            // CHECK IF THE CARD HAS EXPIRED ALREADY
 
 
 

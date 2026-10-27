@@ -105,8 +105,8 @@ public class ItemManager {
         return ChatColor.GREEN + "The smartcard's balance has been updated to " + ChatColor.GOLD + "$" + moneyAmount + ChatColor.GREEN + ".";
     }
 
-    public static String resetSmartcardEntryExitRecords(String cardID) throws SQLException {
-        if (!FareMediaDatabase.getFareMediaDatabase().clearEntryExitRecords(cardID)) {
+    public static String resetSmartcardEntryExitRecord(String cardID) throws SQLException {
+        if (!FareMediaDatabase.getFareMediaDatabase().clearEntryExitRecord(cardID)) {
             return ChatColor.RED + "Error: cardID not found.";
         }
 

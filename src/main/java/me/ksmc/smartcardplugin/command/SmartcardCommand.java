@@ -96,7 +96,7 @@ public class SmartcardCommand implements CommandExecutor {
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
                     // run the subcommand
                     try {
-                        sender.sendMessage(ItemManager.resetSmartcardEntryExitRecords(cardID));
+                        sender.sendMessage(ItemManager.resetSmartcardEntryExitRecord(cardID));
                         return true;
                     } catch (SQLException e) {
                         e.printStackTrace();

@@ -220,7 +220,7 @@ public class FareMediaDatabase {
         }
     }
 
-    public boolean clearEntryExitRecords(String cardID) throws SQLException {
+    public boolean clearEntryExitRecord(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = NULL, exit_record = NULL WHERE card_id = ?")) {
             preparedStatement.setString(1, cardID);
 
