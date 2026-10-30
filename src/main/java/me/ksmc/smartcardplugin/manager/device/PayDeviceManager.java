@@ -8,6 +8,8 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.time.Instant;
+
 public class PayDeviceManager {
 
     public static String activateDevice(String deviceType, Sign deviceSign, Player activeUser, ItemStack fareMedium, String specifiedAgencyId, String moneyAmount, String specifiedStationCode) {
@@ -17,6 +19,12 @@ public class PayDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
+            Instant ticketExpiryTimestamp = Instant.parse(StringUtils.getTicketExpiryTimestampFromLore(fareMedium));
+            Instant currentTimestamp = Instant.now();
+            if (ticketExpiryTimestamp.isBefore(currentTimestamp)) {
+                return ChatColor.RED + "Error: This single-journey ticket has already expired. Please use another ticket.";
+            }
+
             String agencyIdOnTicket = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnTicket.equals(specifiedAgencyId)) {
                 return ChatColor.RED + "Error: The agencyID on the ticket does not match with the one specified on the device.";
@@ -28,9 +36,17 @@ public class PayDeviceManager {
                 return ChatColor.RED + "Error: The origin or destination station on the ticket does not match with the one specified on the device.";
             }
 
-            // confiscate the ticket
-            ItemManager.confiscateTicket(activeUser, fareMedium);
-            activeUser.sendMessage(ChatColor.GREEN + "The ticket has been confiscated.");
+            if (!ItemManager.ticketUsed(fareMedium)) {
+                // update the ticket used state to true
+                ItemManager.updateTicketToUsedState(fareMedium);
+                activeUser.sendMessage(ChatColor.GREEN + "The ticket has been activated.");
+
+            } else {
+                // confiscate the ticket
+                ItemManager.confiscateTicket(activeUser, fareMedium);
+                activeUser.sendMessage(ChatColor.GREEN + "The ticket has been confiscated.");
+            }
+
 
         } else if (fareMedium.getType() == Material.BOOK) {  // pass
             // CHECK IF THE PASS HAS ALREADY EXPIRED

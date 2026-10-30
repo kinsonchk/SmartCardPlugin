@@ -164,6 +164,37 @@ public class FareMediaDatabase {
         }
     }
 
+    public String getCardExpiryFromLastUseDuration(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT expiry_from_last_use FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("expiry_from_last_use");
+            }
+        }
+        return null;
+    }
+
+    public String getCardLastUsedTimestamp(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT last_used FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("last_used");
+            }
+        }
+        return null;
+    }
+
+    public boolean updateCardLastUsedTimestamp(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET last_used = ? WHERE card_id = ?")) {
+            preparedStatement.setString(1, Instant.now().toString());
+            preparedStatement.setString(2, cardID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
+    }
+
     public boolean hasEntryRecord(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT entry_record FROM SmartCards WHERE card_id = ?")) {
             preparedStatement.setString(1, cardID);

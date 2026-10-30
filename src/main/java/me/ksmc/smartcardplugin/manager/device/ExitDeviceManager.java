@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
 
 public class ExitDeviceManager {
 
@@ -19,18 +21,21 @@ public class ExitDeviceManager {
 
         if (fareMedium.getType() == Material.NAME_TAG) {  // smartcard
             String cardID = StringUtils.getCardOrPassIdFromLore(fareMedium);
+            String agencyIdOnCard = StringUtils.getCardOrPassAgencyIdFromLore(fareMedium);
 
             // CHECK IF THE CARD HAS EXPIRED ALREADY
-
-
+            Instant cardLastUsedTimestamp = Instant.parse(FareMediaDatabase.getFareMediaDatabase().getCardLastUsedTimestamp(cardID));
+            Instant currentTimestamp = Instant.now();
+            Duration cardExpiryDuration = StringUtils.convertDurationToTimeUnits(FareMediaDatabase.getFareMediaDatabase().getCardExpiryFromLastUseDuration(cardID));
+            if (Duration.between(cardLastUsedTimestamp, currentTimestamp).compareTo(cardExpiryDuration) >= 0) {
+                return ChatColor.RED + "Error: This smart card has already expired. Please use another card.";
+            }
 
             String cardBalanceRaw = ItemManager.getSmartcardBalance(cardID);
             if (cardBalanceRaw == null) {
                 return ChatColor.RED + "Error: Database error.";
             }
             double cardCurrentBalance = Double.parseDouble(cardBalanceRaw);
-
-
 
             if (FareMediaDatabase.getFareMediaDatabase().hasEntryRecord(cardID)) {
                 String agencyIdOnCardEntryRecord = StringUtils.getAgencyIdOnCardEntryRecord(cardID);
@@ -55,22 +60,25 @@ public class ExitDeviceManager {
                 EconomyManager.addAgencyRevenue(specifiedAgencyId, cardPenaltyFee);
             }
 
-            // CALCULATE FARE FROM FARE CHART
+            // TODO: GET FARE FROM FARE CHART
             double fare = 0;
 
             FareMediaDatabase.getFareMediaDatabase().createExitRecord(cardID, specifiedAgencyId, specifiedStationCode);
 
             activeUser.sendMessage(ChatColor.GOLD + "$" + fare + ChatColor.GREEN + " fare has been deducted from the card.");
+            EconomyManager.addAgencyRevenue(specifiedAgencyId, fare);
 
             // CREATE TRANSACTION RECORD
-            // TODO: the penalty fare should be included (if the transaction involves it)
+            // note: the penalty fare IS NOT included in the transaction record
             FareMediaDatabase.getFareMediaDatabase().createCardTransactionRecord(cardID, specifiedAgencyId, String.valueOf(fare));
             ItemManager.resetSmartcardEntryExitRecord(cardID);
+            FareMediaDatabase.getFareMediaDatabase().updateCardLastUsedTimestamp(cardID);
             activeUser.sendMessage(ChatColor.GREEN + "Smart card interaction successful.");
 
 
-
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
+            // no need to check if the ticket has already expired since it can only be used once anyways
+
             String agencyIdOnTicket = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnTicket.equals(specifiedAgencyId)) {
                 return ChatColor.RED + "Error: The agencyID on the ticket does not match with the one specified on the device.";

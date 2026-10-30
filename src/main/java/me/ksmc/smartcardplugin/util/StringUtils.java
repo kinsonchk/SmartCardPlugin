@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -53,6 +54,35 @@ public class StringUtils {
         return expiryTimestamp;
     }
 
+    public static Duration convertDurationToTimeUnits(String duration) {
+        if (duration == null) {
+            return null;
+        }
+        duration = duration.toLowerCase(Locale.ROOT);
+        if (!validTimeString(duration)) {
+            return null;
+        }
+
+        Pattern pattern = Pattern.compile(TIME_STRING_FORMAT);
+        Matcher matcher = pattern.matcher(duration.trim().toLowerCase(Locale.ROOT));
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        long amount = Long.parseLong(matcher.group(1));
+        String unit = matcher.group(2);
+
+        Duration durationInTimeUnits = switch (unit) {
+            case "s" -> Duration.ofSeconds(amount);
+            case "m" -> Duration.ofMinutes(amount);
+            case "h" -> Duration.ofHours(amount);
+            case "d" -> Duration.ofDays(amount);
+            case "w" -> Duration.ofDays(amount * 7);
+            default -> null;
+        };
+        return durationInTimeUnits;
+    }
+
 
     public static String getCardOrPassIdFromLore(ItemStack smartcard) {
         String rawLore = ChatColor.stripColor(smartcard.getItemMeta().getLore().get(0));
@@ -88,6 +118,11 @@ public class StringUtils {
     public static String getTicketUsedStateFromLore(ItemStack ticket) {
         String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(4));
         return rawLore.replace("Used: ", "").trim();
+    }
+
+    public static String getTicketExpiryTimestampFromLore(ItemStack ticket) {
+        String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(3));
+        return rawLore.replace("Expiry: ", "").trim();
     }
 
 }
