@@ -41,7 +41,7 @@ public class EntryDeviceManager {
                 }
 
                 // Deduct surcharge/penalty fee from card for already having an entry record
-                // NOTE: it uses the agencyID ON THE CARD'S ENTRY RECORD, NOT the agencyID that issued the card
+                // NOTE: it uses the agencyID ON THE CARD'S ENTRY RECORD, NOT the agencyID that issued the card, NOR the agencyID specified on the entry device sign
                 double cardPenaltyFee = ItemUtils.getCardPenaltyFee(agencyIdOnCardEntryRecord);
                 if (!StringUtils.validMoneyString(String.valueOf(cardPenaltyFee))) {
                     return ChatColor.RED + "Error: The penalty fee amount input is invalid.";
@@ -65,6 +65,10 @@ public class EntryDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
+            // CHECK IF THE TICKET HAS ALREADY EXPIRED
+
+
+
             String agencyIdOnTicket = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnTicket.equals(specifiedAgencyId)) {
                 return ChatColor.RED + "Error: The agencyID on the ticket does not match with the one specified on the device.";
@@ -83,7 +87,17 @@ public class EntryDeviceManager {
             ItemManager.updateTicketToUsedState(fareMedium);
             activeUser.sendMessage(ChatColor.GREEN + "The ticket has been activated.");
 
+
         } else if (fareMedium.getType() == Material.BOOK) {  // pass
+            String passID = StringUtils.getCardOrPassIdFromLore(fareMedium);
+
+            // CHECK IF THE PASS HAS ALREADY EXPIRED
+
+
+            if (ItemManager.passEnteredGate(passID)) {
+                return ChatColor.RED + "Error: This pass has been used to activate an entry device but not an exit device. You must use it to activate an exit device before using it again.";
+            }
+
 
 
 

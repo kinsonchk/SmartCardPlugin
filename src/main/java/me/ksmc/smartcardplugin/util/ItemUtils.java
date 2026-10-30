@@ -51,6 +51,10 @@ public class ItemUtils {
         return Main.getPlugin().getConfig().getString(agencyID + ".pass-config.pass-types." + passType + ".pass-type-name");
     }
 
+//    public static boolean passValidForStation(String agencyID, ) {
+//
+//    }
+
     public static int getTripsAllowedForPass(String agencyID, String passType) {
         return Main.getPlugin().getConfig().getInt(agencyID + ".pass-config.pass-types." + passType + ".trips-allowed", -1);
     }

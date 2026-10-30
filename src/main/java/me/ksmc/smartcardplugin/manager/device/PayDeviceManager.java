@@ -33,6 +33,7 @@ public class PayDeviceManager {
             activeUser.sendMessage(ChatColor.GREEN + "The ticket has been confiscated.");
 
         } else if (fareMedium.getType() == Material.BOOK) {  // pass
+            // CHECK IF THE PASS HAS ALREADY EXPIRED
 
 
 

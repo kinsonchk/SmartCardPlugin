@@ -56,12 +56,18 @@ public class ExitDeviceManager {
             }
 
             // CALCULATE FARE FROM FARE CHART
-
+            double fare = 0;
 
             FareMediaDatabase.getFareMediaDatabase().createExitRecord(cardID, specifiedAgencyId, specifiedStationCode);
+
+            activeUser.sendMessage(ChatColor.GOLD + "$" + fare + ChatColor.GREEN + " fare has been deducted from the card.");
+
             // CREATE TRANSACTION RECORD
+            // TODO: the penalty fare should be included (if the transaction involves it)
+            FareMediaDatabase.getFareMediaDatabase().createCardTransactionRecord(cardID, specifiedAgencyId, String.valueOf(fare));
             ItemManager.resetSmartcardEntryExitRecord(cardID);
             activeUser.sendMessage(ChatColor.GREEN + "Smart card interaction successful.");
+
 
 
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
@@ -87,7 +93,12 @@ public class ExitDeviceManager {
 
 
 
+
+
         } else if (fareMedium.getType() == Material.IRON_NUGGET) {  // exit-only ticket
+            // CHECK IF ALREADY EXPIRED
+
+
             String agencyIdOnTicket = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnTicket.equals(specifiedAgencyId)) {
                 return ChatColor.RED + "Error: The agencyID on the exit-only ticket does not match with the one specified on the device.";

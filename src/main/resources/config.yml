@@ -3,6 +3,7 @@
 
 # Notes:
 # For money amount inputs, only numbers of at most two decimal places are accepted.
+
 # For time durations, you must use this format: "amount""unit"
 # - NO SPACE between the amount and the unit
 # - The unit can only be one of the following, and it MUST BE a single letter:
@@ -14,6 +15,17 @@
 # - CANNOT USE months or years as the unit since they vary in length
 # - Accepted examples: "1s", "2m", "3h", "4d", "5w"
 # - Unaccepted examples: "1 s", "1min", "2hrs", "1 day", "3 w", etc.
+
+# For options involving a list ("use-in-other-companies", "valid-stations"), if the list is empty, then by default everything is accepted.
+
+# For "smart-card-add-value-amounts", if the list is empty, then the default amounts will be applied:
+# - 1.0
+# - 2.0
+# - 5.0
+# - 10.0
+# - 20.0
+# - 50.0
+# - 100.0
 
 # Transit agency example 1: Hong Kong's MTR
 # All features are enabled for demonstration

@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 
 import java.sql.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 public class FareMediaDatabase {
@@ -13,6 +14,8 @@ public class FareMediaDatabase {
 
     public FareMediaDatabase(String path) throws SQLException {
         this.connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+
+        // TODO: make it such that the database tables and columns will be synchronized if there's ever a new plugin version with updated tables
 
         try (Statement statement = connection.createStatement()) {
             statement.execute("""
@@ -23,7 +26,8 @@ public class FareMediaDatabase {
                     expiry_from_last_use VARCHAR(20),
                     entry_record VARCHAR(60),
                     exit_record VARCHAR(60),
-                    transactions TEXT
+                    transactions TEXT,  -- max 5 transaction records, stored as a long string with each record split with comma
+                    last_used BIGINT
                 )
             """);
         }
@@ -123,9 +127,11 @@ public class FareMediaDatabase {
 
 
     public Object createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use) VALUES (?, ?)")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use, transactions, last_used) VALUES (?, ?, ?, ?)")) {
             preparedStatement.setString(1, agencyID);
             preparedStatement.setString(2, expiryFromLastUse);
+            preparedStatement.setString(3, "");  // ensure not null
+            preparedStatement.setString(4, Instant.now().toString());  // the timestamp of the card issue
 
             if (preparedStatement.executeUpdate() > 0) {  // will be true if the SQL database operation was successful
                 ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -228,9 +234,41 @@ public class FareMediaDatabase {
         }
     }
 
-//    public boolean createTransactionRecord()  throws SQLException {
-//
-//    }
+    public String getCardTransactionRecords(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT transactions FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("transactions");
+            }
+        }
+        return null;
+    }
+
+    public boolean createCardTransactionRecord(String cardID, String agencyID, String fare)  throws SQLException {
+        String currentTransactions = getCardTransactionRecords(cardID);
+        String[] transactionsList = currentTransactions.split(",");
+        ArrayList<String> transactionsArray = new ArrayList<>();
+        for (String transaction : transactionsList) {
+            transactionsArray.add(transaction.trim());
+        }
+
+        String newTransactionEntry = Instant.now().toString() + ":" + agencyID + ":" + fare;
+        transactionsArray.addFirst(newTransactionEntry);
+
+        while (transactionsArray.size() > 5) {  // storing max 5 transaction records
+            transactionsArray.remove(transactionsArray.size() - 1);
+        }
+
+        String updatedTransactions = String.join(",", transactionsArray);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET transactions = ? WHERE card_id = ?")) {
+            preparedStatement.setString(1, updatedTransactions);
+            preparedStatement.setString(2, cardID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
+    }
 
     public boolean deleteSmartCard(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM SmartCards WHERE card_id = ?")) {

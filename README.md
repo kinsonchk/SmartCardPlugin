@@ -98,21 +98,21 @@ This option allows a player to obtain an exit-only ticket for a surcharge to use
 ## 3. Fare Validation
 Fare validation devices are represented as customized signs. The signs must use a specific format:
 
-| Line on the sign                                                                     | Content                     | Example 1    | Example 2        | Example 3      | Example 4    |
-| ------------------------------------------------------------------------------------ | --------------------------- | ------------ | ---------------- | -------------- | ------------ |
-| 1 (as-is; see deviceFunction list below; see 3.2 Fare Validation Device Types below) | [deviceFunction deviceType] | [Entry Gate] | [Exit Validator] | [Pay Terminal] | [Staff Gate] |
-| 2 (arguments)                                                                        | agencyID (line2Arguments)   | MTR ADM      | LRT 3 12.5       | MTR 45.6       | MTR          |
-| 3 (customizable)                                                                     |                             |              |                  |                |              |
-| 4 (customizable)                                                                     |                             |              |                  |                |              |
+| Line on the sign                                                                      | Content                     | Example 1    | Example 2        | Example 3      | Example 4    |
+| ------------------------------------------------------------------------------------- | --------------------------- | ------------ | ---------------- | -------------- | ------------ |
+| 1 (as-is; see deviceFunction table below; see 3.2 Fare Validation Device Types below) | [deviceFunction deviceType] | [Entry Gate] | [Exit Validator] | [Pay Terminal] | [Staff Gate] |
+| 2 (arguments)                                                                         | agencyID (line2Arguments)   | MTR ADM      | LRT 3 12.5       | MTR 45.6 TSW   | MTR          |
+| 3 (customizable)                                                                      |                             |              |                  |                |              |
+| 4 (customizable)                                                                      |                             |              |                  |                |              |
 
 Each device can be serving one of these functions; each function requires certain arguments to be present on the sign to work:
 
-| deviceFunction | line2Arguments (optional argument) | Example | Description                                                                                                                                          |
-| -------------- | ---------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Entry          | stationCode/Zone                   | ADM     | Entry point to a transportation network                                                                                                              |
-| Exit           | stationCode/Zone                   | 3 12.5  | Exit point of a transportation network                                                                                                               |
-| Pay            | moneyAmount (stationCode/Zone)     | 45.6    | Deduct money directly from the card when used (not applicable to tickets or passes); stationCode/Zone is for the use of tickets or passes (optional) |
-| Staff          |                                    | Staff   | Can only be used with staff passes; there are no arguments                                                                                           |
+| deviceFunction | line2Arguments (optional argument) | Example  | Description                                                                                                                                          |
+| -------------- | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entry          | stationCode/Zone                   | ADM      | Entry point to a transportation network                                                                                                              |
+| Exit           | stationCode/Zone                   | 3 12.5   | Exit point of a transportation network                                                                                                               |
+| Pay            | moneyAmount (stationCode/Zone)     | 45.6 TSW | Deduct money directly from the card when used (not applicable to tickets or passes); stationCode/Zone is for the use of tickets or passes (optional) |
+| Staff          |                                    | Staff    | Can only be used with staff passes; there are no arguments                                                                                           |
 
 If there are issues (not caused by a player attempting to fare evade) with a smart card, an admin can manually reset (clear) the current entry and exit record on the card with "/smartcard fixcard cardID".
 
@@ -124,7 +124,8 @@ If there are issues (not caused by a player attempting to fare evade) with a sma
 - For single-journey tickets: A ticket will activate an entry device only if its origin station/zone matches that of the entry device. Upon successful activation of an entry device, the enteredGate value on the ticket will be updated to true.
 	- If the enteredGate value is already true, the device won't be activated.
 - An exit-only ticket cannot be used with an entry device (obviously).
-- For passes: As long as all the contents of the pass have not yet been used up, and all the conditions of the pass are valid, the device will be activated; if not, the device won't be activated. Upon successful activation of an entry device, the enteredGate value on the pass will be updated to true. Depending on the pass type, trip deduction will occur upon successful activation of an entry device.
+- For passes: As long as all the contents of the pass have not yet been used up, and all the conditions of the pass are valid, the device will be activated; if not, the device won't be activated. Upon successful activation of an entry device, the enteredGate value on the pass will be updated to true. Depending on the pass type, if the policy is trip-based, then trip deduction will occur upon successful activation of an entry device.
+	- If the enteredGate value is already true, the device won't be activated.
 
 #### 3.1.2 Function 2: Using an Exit device
 - For smart cards: No matter whether the card's balance after deducting from a journey fare would result in a negative balance, an exit device can still be activated. An exit record with the station code/zone and timestamp will be loaded to the card, and the correct fare will be calculated and deducted from the card. The fare will then be added to the transaction record list.
@@ -133,14 +134,16 @@ If there are issues (not caused by a player attempting to fare evade) with a sma
 - For tickets: A ticket will activate an exit device only if its destination station/zone matches that of the exit device. Upon successful activation of an exit device, the ticket will be confiscated.
 	- If the enteredGate value is not already true, the device won't be activated.
 - An exit-only ticket can activate any exit device of the same transit company that issued it. Upon successful activation, the ticket will be confiscated.
-- For passes: As long as all the contents of the pass have not yet been used up, and all the conditions of the pass are valid, the device will be activated; if not, the device won't be activated. Trip deduction (if applicable) will occur upon successful activation of an exit device, unless the enteredGate value on the pass was true. Upon successful activation of an exit device, the enteredGate value on the pass will be updated to false.
+- For passes: As long as the enteredGate value is true, the device will be activated; if not, the device won't be activated. Trip deduction does not occur upon successful activation of an exit device. Upon successful activation of an exit device, the enteredGate value on the pass will be updated to false.
 
 #### 3.1.3 Function 3: Using a Pay device
 Pay devices can be used for transit lines where there is one station that has no fare gates/validators (example: Hong Kong Airport Express).
 - For smart cards: As long as the card's balance is greater than $0, the device will be activated. The fare will then be directly added to the transaction record list (no entry and exit record required).
-- For tickets: A ticket can only activate pay devices with the same entry or exit station code/zone specified. Upon successful activation of a pay device, the ticket will directly be confiscated by the device.
+- For tickets: A ticket can only activate pay devices with the same entry or exit station code/zone specified. Upon successful activation of a pay device:
+	- If the enteredGate is false, it will be updated to true.
+	- If the enteredGate is true, the ticket will directly be confiscated by the device.
 - An exit-only ticket cannot be used with a pay device.
-- For passes: A pass can only activate pay devices with the station code/zone specified. As long as all the contents of the pass have not yet been used up, and all the conditions of the pass are valid, the device will be activated; if not, the device won't be activated. Depending on the pass type, trip deduction will occur upon successful activation of a pay device.
+- For passes: A pass can only activate pay devices with the station code/zone specified. As long as all the contents of the pass have not yet been used up, and all the conditions of the pass are valid, the device will be activated; if not, the device won't be activated. Depending on the pass type, if the policy is trip-based, then trip deduction will occur upon successful activation of a pay device. The enteredGate value will not be updated.
 
 #### 3.1.4 Function 4: Using a Staff device
 Only staff passes can activate a staff device. A staff pass can activate any staff device of the same transit operator that issued the pass.

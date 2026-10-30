@@ -270,6 +270,12 @@ public class ItemManager {
         return ChatColor.GREEN + "The pass has been issued.";
     }
 
+    public static boolean passEnteredGate(String passID) {
+
+
+        return false;
+    }
+
     public static String deletePass(String passID) throws SQLException {
         if (!FareMediaDatabase.getFareMediaDatabase().deletePass(passID)) {
             return ChatColor.RED + "Error: passID not found.";
