@@ -20,8 +20,8 @@ public class ExitDeviceManager {
     public static String activateDevice(String deviceType, Sign deviceSign, Player activeUser, ItemStack fareMedium, String specifiedAgencyId, String specifiedStationCode) throws SQLException {
 
         if (fareMedium.getType() == Material.NAME_TAG) {  // smartcard
-            String cardID = StringUtils.getCardOrPassIdFromLore(fareMedium);
-            String agencyIdOnCard = StringUtils.getCardOrPassAgencyIdFromLore(fareMedium);
+            String cardID = StringUtils.getCardIdFromLore(fareMedium);
+            //String agencyIdOnCard = StringUtils.getCardOrPassAgencyIdFromLore(fareMedium);
 
             // CHECK IF THE CARD HAS EXPIRED ALREADY
             Instant cardLastUsedTimestamp = Instant.parse(FareMediaDatabase.getFareMediaDatabase().getCardLastUsedTimestamp(cardID));

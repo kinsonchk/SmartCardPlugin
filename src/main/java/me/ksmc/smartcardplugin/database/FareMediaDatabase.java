@@ -144,6 +144,17 @@ public class FareMediaDatabase {
         }
     }
 
+    public String getAgencyIdOnCard(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("agency_id");
+            }
+        }
+        return null;
+    }
+
     public Object getCardBalance(String cardID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM SmartCards WHERE card_id = ?")) {
             preparedStatement.setString(1, cardID);
@@ -219,7 +230,7 @@ public class FareMediaDatabase {
 
     public boolean createEntryRecord(String cardID, String agencyID, String stationCode) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
-            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + Instant.now().toString());
+            preparedStatement.setString(1, agencyID + "," + stationCode + "," + Instant.now().toString());
             preparedStatement.setString(2, cardID);
 
             return preparedStatement.executeUpdate() > 0;
@@ -250,7 +261,7 @@ public class FareMediaDatabase {
 
     public boolean createExitRecord(String cardID, String agencyID, String stationCode) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET exit_record = ? WHERE card_id = ?")) {
-            preparedStatement.setString(1, agencyID + ":" + stationCode + ":" + Instant.now().toString());
+            preparedStatement.setString(1, agencyID + "," + stationCode + "," + Instant.now().toString());
             preparedStatement.setString(2, cardID);
 
             return preparedStatement.executeUpdate() > 0;
@@ -278,20 +289,20 @@ public class FareMediaDatabase {
 
     public boolean createCardTransactionRecord(String cardID, String agencyID, String fare)  throws SQLException {
         String currentTransactions = getCardTransactionRecords(cardID);
-        String[] transactionsList = currentTransactions.split(",");
+        String[] transactionsList = currentTransactions.split(";");
         ArrayList<String> transactionsArray = new ArrayList<>();
         for (String transaction : transactionsList) {
             transactionsArray.add(transaction.trim());
         }
 
-        String newTransactionEntry = Instant.now().toString() + ":" + agencyID + ":" + fare;
+        String newTransactionEntry = Instant.now().toString() + "," + agencyID + "," + fare;
         transactionsArray.addFirst(newTransactionEntry);
 
         while (transactionsArray.size() > 5) {  // storing max 5 transaction records
             transactionsArray.remove(transactionsArray.size() - 1);
         }
 
-        String updatedTransactions = String.join(",", transactionsArray);
+        String updatedTransactions = String.join(";", transactionsArray);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET transactions = ? WHERE card_id = ?")) {
             preparedStatement.setString(1, updatedTransactions);
@@ -326,6 +337,65 @@ public class FareMediaDatabase {
 
             return null;
         }
+    }
+
+    public String getAgencyIdOnPass(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT agency_id FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("agency_id");
+            }
+        }
+        return null;
+    }
+
+    public String getPassTypeOnPass(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT pass_type FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("pass_type");
+            }
+        }
+        return null;
+    }
+
+    public int getTripsRemainingOnPass(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT trips_remaining FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("trips_remaining");
+            }
+        }
+        return -1;
+    }
+
+    public Boolean getPassEnteredGateState(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT has_entered_gate FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                if (resultSet.getInt("has_entered_gate") == 1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getPassExpiryTimestamp(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT expiry FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("expiry");
+            }
+        }
+        return null;
     }
 
     public boolean deletePass(String passID) throws SQLException {

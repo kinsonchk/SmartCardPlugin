@@ -84,20 +84,19 @@ public class StringUtils {
     }
 
 
-    public static String getCardOrPassIdFromLore(ItemStack smartcard) {
+    public static String getCardIdFromLore(ItemStack smartcard) {
         String rawLore = ChatColor.stripColor(smartcard.getItemMeta().getLore().get(0));
         return rawLore.replace("Card ID: ", "").trim();
-
     }
 
-    public static String getCardOrPassAgencyIdFromLore(ItemStack staffPass) {
-        String rawLore = ChatColor.stripColor(staffPass.getItemMeta().getLore().get(1));  // STORED ON THE 2ND LINE!!!
-        return rawLore.replace("Agency ID: ", "").trim();
-    }
+//    public static String getCardOrPassAgencyIdFromLore(ItemStack staffPass) {
+//        String rawLore = ChatColor.stripColor(staffPass.getItemMeta().getLore().get(1));  // STORED ON THE 2ND LINE!!!
+//        return rawLore.replace("Agency ID: ", "").trim();
+//    }
 
     public static String getAgencyIdOnCardEntryRecord(String cardID) throws SQLException {
         String rawEntryRecord = FareMediaDatabase.getFareMediaDatabase().getEntryRecord(cardID);
-        return rawEntryRecord.split(":")[0];
+        return rawEntryRecord.split(",")[0];
     }
 
     public static String getAgencyIdFromLore(ItemStack staffPass) {
@@ -123,6 +122,18 @@ public class StringUtils {
     public static String getTicketExpiryTimestampFromLore(ItemStack ticket) {
         String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(3));
         return rawLore.replace("Expiry: ", "").trim();
+    }
+
+
+    public static String getExitOnlyTicketExpiryTimestampFromLore(ItemStack ticket) {
+        String rawLore = ChatColor.stripColor(ticket.getItemMeta().getLore().get(1));
+        return rawLore.replace("Expiry: ", "").trim();
+    }
+
+
+    public static String getPassIdFromLore(ItemStack pass) {
+        String rawLore = ChatColor.stripColor(pass.getItemMeta().getLore().get(0));
+        return rawLore.replace("Pass ID: ", "").trim();
     }
 
 }
