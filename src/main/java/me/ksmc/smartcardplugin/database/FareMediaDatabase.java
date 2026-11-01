@@ -126,6 +126,17 @@ public class FareMediaDatabase {
     }
 
 
+    public boolean smartcardExists(String cardID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT card_id FROM SmartCards WHERE card_id = ?")) {
+            preparedStatement.setString(1, cardID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Object createSmartCard(String agencyID, String expiryFromLastUse) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO SmartCards (agency_id, expiry_from_last_use, transactions, last_used) VALUES (?, ?, ?, ?)")) {
             preparedStatement.setString(1, agencyID);
@@ -320,6 +331,17 @@ public class FareMediaDatabase {
         }
     }
 
+
+    public boolean passExists(String passID) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT pass_id FROM Passes WHERE pass_id = ?")) {
+            preparedStatement.setString(1, passID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Object createPass(String agencyID, String passType, int tripsRemaining, String expiry) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Passes (agency_id, pass_type, trips_remaining, expiry) VALUES (?, ?, ?, ?)")) {

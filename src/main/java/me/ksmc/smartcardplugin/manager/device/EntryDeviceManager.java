@@ -104,9 +104,9 @@ public class EntryDeviceManager {
             // CHECK IF THE PASS HAS ALREADY EXPIRED
 
 
-            if (ItemManager.passEnteredGate(passID)) {
-                return ChatColor.RED + "Error: This pass has been used to activate an entry device but not an exit device. You must use it to activate an exit device before using it again.";
-            }
+//            if (ItemManager.passEnteredGate(passID)) {
+//                return ChatColor.RED + "Error: This pass has been used to activate an entry device but not an exit device. You must use it to activate an exit device before using it again.";
+//            }
 
 
 

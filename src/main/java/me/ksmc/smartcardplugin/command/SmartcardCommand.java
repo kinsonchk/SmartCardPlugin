@@ -254,6 +254,8 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
+
+
             // TODO
             case "machine": {
                 if (args.length < 2) {
@@ -276,6 +278,8 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
+
+
             case "enquiry": {
                 if (sender instanceof Player player) {
                     // run the subcommand
@@ -285,100 +289,7 @@ public class SmartcardCommand implements CommandExecutor {
                         if (fareMedium.getType() == Material.NAME_TAG) {
                             String cardID = StringUtils.getCardIdFromLore(fareMedium);
 
-                            String agencyID = "";
-                            try {
-                                agencyID = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnCard(cardID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            String cardBalance = "";
-                            try {
-                                cardBalance = FareMediaDatabase.getFareMediaDatabase().getCardBalance(cardID).toString();
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            String cardExpiryDuration = "";
-                            try {
-                                cardExpiryDuration = FareMediaDatabase.getFareMediaDatabase().getCardExpiryFromLastUseDuration(cardID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            String cardLastUsedTimestamp = "";
-                            try {
-                                cardLastUsedTimestamp = FareMediaDatabase.getFareMediaDatabase().getCardLastUsedTimestamp(cardID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            String currentEntryRecord = "";
-                            try {
-                                currentEntryRecord = FareMediaDatabase.getFareMediaDatabase().getEntryRecord(cardID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                            StringBuilder entryRecordToDisplay = new StringBuilder();
-                            if (currentEntryRecord != null) {
-                                String[] entryRecord = currentEntryRecord.split(",");
-                                entryRecordToDisplay.append("\n ");
-                                for (String info : entryRecord) {
-                                    entryRecordToDisplay.append(info + "  ");
-                                }
-                            } else {
-                                entryRecordToDisplay = new StringBuilder("None");
-                            }
-
-                            String currentExitRecord = "";
-                            try {
-                                currentExitRecord = FareMediaDatabase.getFareMediaDatabase().getExitRecord(cardID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                            StringBuilder exitRecordToDisplay = new StringBuilder();
-                            if (currentExitRecord != null) {
-                                String[] exitRecord = currentExitRecord.split(",");
-                                exitRecordToDisplay.append("\n ");
-                                for (String info : exitRecord) {
-                                    exitRecordToDisplay.append(info + "  ");
-                                }
-                            } else {
-                                exitRecordToDisplay = new StringBuilder("None");
-                            }
-
-                            String cardTransactions = "";
-                            try {
-                                cardTransactions = FareMediaDatabase.getFareMediaDatabase().getCardTransactionRecords(cardID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                            String[] transactionsList = cardTransactions.split(";");
-                            StringBuilder transactionsStringToDisplay = new StringBuilder();
-                            if (!cardTransactions.isEmpty()) {
-                                int index = 0;
-                                for (String transaction : transactionsList) {
-                                    index++;
-                                    transactionsStringToDisplay.append("\n" + index + ".  ");
-                                    String[] transactionRecord = transaction.split(",");
-                                    for (String info : transactionRecord) {
-                                        transactionsStringToDisplay.append(info + "  ");
-                                    }
-                                }
-                            } else {
-                                transactionsStringToDisplay = new StringBuilder("\nNo records found on this smart card.");
-                            }
-
-                            sender.sendMessage(ChatColor.GREEN + "Smart Card Info:" +
-                                    ChatColor.YELLOW + "\nCard ID: " + ChatColor.GOLD + cardID +
-                                    ChatColor.YELLOW + "\nCard Brand Name: " + ChatColor.GOLD + ItemUtils.getSmartcardBrandName(agencyID) +
-                                    ChatColor.YELLOW + "\nCard Issuing Agency: " + ChatColor.GOLD + ItemUtils.getCompanyName(agencyID) + ChatColor.YELLOW + "  (Agency ID: " + ChatColor.GOLD + agencyID + ChatColor.YELLOW + ")" +
-                                    ChatColor.YELLOW + "\nCard Balance: " + ChatColor.GOLD + "$" + cardBalance +
-                                    ChatColor.YELLOW + "\nCard Expiry: " + ChatColor.GOLD + cardExpiryDuration + ChatColor.YELLOW + " from last use.  (Last Used Time: " + ChatColor.GOLD + cardLastUsedTimestamp + ChatColor.YELLOW + ")" +
-                                    ChatColor.YELLOW + "\nCurrent Entry Record on card: " + ChatColor.AQUA + entryRecordToDisplay +
-                                    //ChatColor.YELLOW + "\nCurrent Exit Record on card: " + ChatColor.AQUA + exitRecordToDisplay +
-                                    ChatColor.YELLOW + "\nThe 5 most recent transactions (from most recent to least recent):" + ChatColor.AQUA + transactionsStringToDisplay
-                            );
+                            sender.sendMessage(ItemUtils.smartcardEnquiry(cardID));
 
                         } else if (fareMedium.getType() == Material.PAPER) {
                             String agencyID = StringUtils.getAgencyIdFromLore(fareMedium);
@@ -398,55 +309,7 @@ public class SmartcardCommand implements CommandExecutor {
                         } else if (fareMedium.getType() == Material.BOOK) {
                             String passID = StringUtils.getPassIdFromLore(fareMedium);
 
-                            String agencyID = "";
-                            try {
-                                agencyID = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnPass(passID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            String passType = "";
-                            try {
-                                passType = FareMediaDatabase.getFareMediaDatabase().getPassTypeOnPass(passID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            int tripsRemaining = 0;
-                            try {
-                                tripsRemaining = FareMediaDatabase.getFareMediaDatabase().getTripsRemainingOnPass(passID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                            String tripsRemainingToDisplay;
-                            if (tripsRemaining == -1) {
-                                tripsRemainingToDisplay = "unlimited";
-                            } else {
-                                tripsRemainingToDisplay = Integer.toString(tripsRemaining);
-                            }
-
-                            String passEnteredGateState = "";
-                            try {
-                                passEnteredGateState = String.valueOf(FareMediaDatabase.getFareMediaDatabase().getPassEnteredGateState(passID));
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            String passExpiry = "";
-                            try {
-                                passExpiry = FareMediaDatabase.getFareMediaDatabase().getPassExpiryTimestamp(passID);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
-                            sender.sendMessage(ChatColor.GREEN + "Pass Info:" +
-                                    ChatColor.YELLOW + "\nPass ID: " + ChatColor.GOLD + passID +
-                                    ChatColor.YELLOW + "\nPass Type Name: " + ChatColor.GOLD + ItemUtils.getPassName(agencyID, passType) + ChatColor.YELLOW + "  (Pass Type: " + ChatColor.GOLD + passType + ChatColor.YELLOW + ")" +
-                                    ChatColor.YELLOW + "\nPass Issuing Agency: " + ChatColor.GOLD + ItemUtils.getCompanyName(agencyID) + ChatColor.YELLOW + "  (Agency ID: " + ChatColor.GOLD + agencyID + ChatColor.YELLOW + ")" +
-                                    ChatColor.YELLOW + "\nTrips Remaining on Pass: " + ChatColor.GOLD + tripsRemainingToDisplay +
-                                    ChatColor.YELLOW + "\nPass Expiry: " + ChatColor.GOLD + passExpiry +
-                                    ChatColor.YELLOW + "\nEntered Gate State: " + ChatColor.GOLD + passEnteredGateState
-                            );
+                            sender.sendMessage(ItemUtils.passEnquiry(passID));
 
                         } else if (fareMedium.getType() == Material.IRON_NUGGET) {
                             String agencyID = StringUtils.getAgencyIdFromLore(fareMedium);
@@ -477,7 +340,6 @@ public class SmartcardCommand implements CommandExecutor {
                 break;
             }
 
-            // TODO
             case "enquirystaff": {
                 if (args.length < 3) {
                     sender.sendMessage(INCORRECT_USAGE_MESSAGE);
@@ -490,8 +352,31 @@ public class SmartcardCommand implements CommandExecutor {
                 String fareMediumID = args[2];
 
                 if (sender instanceof Player player && player.hasPermission(ADMIN_PERMISSION) || sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("Success!");
                     // run the subcommand
+                    if (args[1].equals("card")) {
+                        try {
+                            if (FareMediaDatabase.getFareMediaDatabase().smartcardExists(fareMediumID)) {
+                                sender.sendMessage(ItemUtils.smartcardEnquiry(fareMediumID));
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "Error: cardID not found.");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                        }
+
+                    } else if (args[1].equals("pass")) {
+                        try {
+                            if (FareMediaDatabase.getFareMediaDatabase().passExists(fareMediumID)) {
+                                sender.sendMessage(ItemUtils.passEnquiry(fareMediumID));
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "Error: passID not found.");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            sender.sendMessage(DATABASE_ERROR_MESSAGE);
+                        }
+                    }
 
                 } else {
                     sender.sendMessage(NO_PERMISSION_MESSAGE);
