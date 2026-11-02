@@ -6,6 +6,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemUtils {
 
@@ -109,6 +113,30 @@ public class ItemUtils {
         );
     }
 
+    public static boolean cardCanBeUsedWithSpecifiedAgency(String agencyIdOnCard, String specifiedAgencyId) {
+        if (agencyIdOnCard.equalsIgnoreCase(specifiedAgencyId)) {
+            return true;
+        }
+
+        List<String> useInOtherCompanies = Main.getPlugin().getConfig().getStringList(agencyIdOnCard + ".smart-card-config.use-in-other-companies");
+
+        if (useInOtherCompanies.isEmpty() || useInOtherCompanies.contains(specifiedAgencyId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean cardExpired(String cardID) throws SQLException {
+        Instant cardLastUsedTimestamp = Instant.parse(FareMediaDatabase.getFareMediaDatabase().getCardLastUsedTimestamp(cardID));
+        Instant currentTimestamp = Instant.now();
+        Duration cardExpiryDuration = StringUtils.convertDurationToTimeUnits(FareMediaDatabase.getFareMediaDatabase().getCardExpiryFromLastUseDuration(cardID));
+        if (Duration.between(cardLastUsedTimestamp, currentTimestamp).compareTo(cardExpiryDuration) >= 0) {
+            return true;
+        }
+        return false;
+    }
+
 
     public static boolean ticketsEnabled(String agencyID) {
         return Main.getPlugin().getConfig().getBoolean(agencyID + ".single-journey-ticket-config.enabled", false);
@@ -116,6 +144,15 @@ public class ItemUtils {
 
     public static String getTicketExpiryDefaultValue(String agencyID) {
         return Main.getPlugin().getConfig().getString(agencyID + ".single-journey-ticket-config.expiry", null);
+    }
+
+    public static boolean ticketExpired(ItemStack ticket) {
+        Instant ticketExpiryTimestamp = Instant.parse(StringUtils.getTicketExpiryTimestampFromLore(ticket));
+        Instant currentTimestamp = Instant.now();
+        if (ticketExpiryTimestamp.isBefore(currentTimestamp)) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -202,6 +239,15 @@ public class ItemUtils {
 
     public static String getExitOnlyTicketExpiryDefaultValue(String agencyID) {
         return Main.getPlugin().getConfig().getString(agencyID + ".exit-only-ticket-config.expiry", null);
+    }
+
+    public static boolean exitOnlyTicketExpired(ItemStack ticket) {
+        Instant ticketExpiryTimestamp = Instant.parse(StringUtils.getExitOnlyTicketExpiryTimestampFromLore(ticket));
+        Instant currentTimestamp = Instant.now();
+        if (ticketExpiryTimestamp.isBefore(currentTimestamp)) {
+            return true;
+        }
+        return false;
     }
 
 }

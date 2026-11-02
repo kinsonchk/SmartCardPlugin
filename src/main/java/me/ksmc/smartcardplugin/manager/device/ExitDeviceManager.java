@@ -21,14 +21,14 @@ public class ExitDeviceManager {
 
         if (fareMedium.getType() == Material.NAME_TAG) {  // smartcard
             String cardID = StringUtils.getCardIdFromLore(fareMedium);
-            //String agencyIdOnCard = StringUtils.getCardOrPassAgencyIdFromLore(fareMedium);
+            String agencyIdOnCard = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnCard(cardID);
 
-            // CHECK IF THE CARD HAS EXPIRED ALREADY
-            Instant cardLastUsedTimestamp = Instant.parse(FareMediaDatabase.getFareMediaDatabase().getCardLastUsedTimestamp(cardID));
-            Instant currentTimestamp = Instant.now();
-            Duration cardExpiryDuration = StringUtils.convertDurationToTimeUnits(FareMediaDatabase.getFareMediaDatabase().getCardExpiryFromLastUseDuration(cardID));
-            if (Duration.between(cardLastUsedTimestamp, currentTimestamp).compareTo(cardExpiryDuration) >= 0) {
+            if (ItemUtils.cardExpired(cardID)) {
                 return ChatColor.RED + "Error: This smart card has already expired. Please use another card.";
+            }
+
+            if (!ItemUtils.cardCanBeUsedWithSpecifiedAgency(agencyIdOnCard, specifiedAgencyId)) {
+                return ChatColor.RED + "Error: This card cannot be used with the specified agency.";
             }
 
             String cardBalanceRaw = ItemManager.getSmartcardBalance(cardID);
@@ -104,8 +104,9 @@ public class ExitDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.IRON_NUGGET) {  // exit-only ticket
-            // CHECK IF ALREADY EXPIRED
-
+            if (ItemUtils.exitOnlyTicketExpired(fareMedium)) {
+                return ChatColor.RED + "Error: This exit-only ticket has already expired. Please use another one.";
+            }
 
             String agencyIdOnTicket = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnTicket.equals(specifiedAgencyId)) {

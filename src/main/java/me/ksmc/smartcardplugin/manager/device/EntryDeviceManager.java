@@ -21,14 +21,14 @@ public class EntryDeviceManager {
 
         if (fareMedium.getType() == Material.NAME_TAG) {  // smartcard
             String cardID = StringUtils.getCardIdFromLore(fareMedium);
-            //String agencyIdOnCard = StringUtils.getCardOrPassAgencyIdFromLore(fareMedium);
+            String agencyIdOnCard = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnCard(cardID);
 
-            // CHECK IF THE CARD HAS EXPIRED ALREADY
-            Instant cardLastUsedTimestamp = Instant.parse(FareMediaDatabase.getFareMediaDatabase().getCardLastUsedTimestamp(cardID));
-            Instant currentTimestamp = Instant.now();
-            Duration cardExpiryDuration = StringUtils.convertDurationToTimeUnits(FareMediaDatabase.getFareMediaDatabase().getCardExpiryFromLastUseDuration(cardID));
-            if (Duration.between(cardLastUsedTimestamp, currentTimestamp).compareTo(cardExpiryDuration) >= 0) {
+            if (ItemUtils.cardExpired(cardID)) {
                 return ChatColor.RED + "Error: This smart card has already expired. Please use another card.";
+            }
+
+            if (!ItemUtils.cardCanBeUsedWithSpecifiedAgency(agencyIdOnCard, specifiedAgencyId)) {
+                return ChatColor.RED + "Error: This card cannot be used with the specified agency.";
             }
 
             String cardBalanceRaw = ItemManager.getSmartcardBalance(cardID);
@@ -72,10 +72,7 @@ public class EntryDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
-            // CHECK IF THE TICKET HAS ALREADY EXPIRED
-            Instant ticketExpiryTimestamp = Instant.parse(StringUtils.getTicketExpiryTimestampFromLore(fareMedium));
-            Instant currentTimestamp = Instant.now();
-            if (ticketExpiryTimestamp.isBefore(currentTimestamp)) {
+            if (ItemUtils.ticketExpired(fareMedium)) {
                 return ChatColor.RED + "Error: This single-journey ticket has already expired. Please use another ticket.";
             }
 

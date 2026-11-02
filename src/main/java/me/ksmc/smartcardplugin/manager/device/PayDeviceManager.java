@@ -1,6 +1,7 @@
 package me.ksmc.smartcardplugin.manager.device;
 
 import me.ksmc.smartcardplugin.manager.ItemManager;
+import me.ksmc.smartcardplugin.util.ItemUtils;
 import me.ksmc.smartcardplugin.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -19,9 +20,7 @@ public class PayDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
-            Instant ticketExpiryTimestamp = Instant.parse(StringUtils.getTicketExpiryTimestampFromLore(fareMedium));
-            Instant currentTimestamp = Instant.now();
-            if (ticketExpiryTimestamp.isBefore(currentTimestamp)) {
+            if (ItemUtils.ticketExpired(fareMedium)) {
                 return ChatColor.RED + "Error: This single-journey ticket has already expired. Please use another ticket.";
             }
 
