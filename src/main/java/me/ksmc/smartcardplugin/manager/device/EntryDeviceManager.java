@@ -40,33 +40,37 @@ public class EntryDeviceManager {
                 return ChatColor.RED + "Error: The smartcard's balance is too low. Please add value to use it.";
             }
 
+            double penaltyFare = 0;
+
             if (FareMediaDatabase.getFareMediaDatabase().hasEntryRecord(cardID)) {
                 String agencyIdOnCardEntryRecord = StringUtils.getAgencyIdOnCardEntryRecord(cardID);
                 if (!agencyIdOnCardEntryRecord.equals(specifiedAgencyId)) {
                     return ChatColor.RED + "Error: This card has been used to activate an entry device of another agency. You must use it to activate a device of that same agency to use the card again, or have an admin reset the card's entry record.";
                 }
 
-                // Deduct surcharge/penalty fee from card for already having an entry record
+                double accumulatedPenaltyFare = Double.parseDouble(StringUtils.getPenaltyFareOnCardEntryRecord(cardID));
+
+                // Record the surcharge/penalty fee from card for already having an entry record, and add it to the total fare upon exiting
+                // the penalty fare will accumulate, per activation, until the card is interacted with an exit device, in which the total fare will be deducted, and the entry record will be cleared
                 // NOTE: it uses the agencyID ON THE CARD'S ENTRY RECORD, NOT the agencyID that issued the card, NOR the agencyID specified on the entry device sign
                 double cardPenaltyFee = ItemUtils.getCardPenaltyFee(agencyIdOnCardEntryRecord);
                 if (!StringUtils.validMoneyString(String.valueOf(cardPenaltyFee))) {
                     return ChatColor.RED + "Error: The penalty fee amount input is invalid.";
                 }
 
-                double cardNewBalance = cardCurrentBalance - cardPenaltyFee;
+                double cardNewBalance = cardCurrentBalance - cardPenaltyFee - accumulatedPenaltyFare;
                 if (cardNewBalance <= 0) {
                     return ChatColor.RED + "Error: The smartcard's balance is too low. Please add value to use it.";
                 }
 
-                if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, cardNewBalance)) {
-                    return ChatColor.RED + "Error: Database error.";
-                }
+                accumulatedPenaltyFare += cardPenaltyFee;
+                penaltyFare = accumulatedPenaltyFare;
 
-                activeUser.sendMessage(ChatColor.GOLD + "$" + cardPenaltyFee + ChatColor.GREEN + " penalty fee has been deducted from the card.");
-                EconomyManager.addAgencyRevenue(agencyIdOnCardEntryRecord, cardPenaltyFee);
+                activeUser.sendMessage(ChatColor.GOLD + "$" + cardPenaltyFee + ChatColor.GREEN + " penalty fee will be added to the fare.");
             }
 
-            FareMediaDatabase.getFareMediaDatabase().createEntryRecord(cardID, specifiedAgencyId, specifiedStationCode);
+            FareMediaDatabase.getFareMediaDatabase().createEntryRecord(cardID, specifiedAgencyId, specifiedStationCode, String.valueOf(penaltyFare));
+
             FareMediaDatabase.getFareMediaDatabase().updateCardLastUsedTimestamp(cardID);
             activeUser.sendMessage(ChatColor.GREEN + "Smart card interaction successful.");
 
@@ -92,7 +96,7 @@ public class EntryDeviceManager {
 
             // update the ticket used state to true
             ItemManager.updateTicketToUsedState(fareMedium);
-            activeUser.sendMessage(ChatColor.GREEN + "The ticket has been activated.");
+            activeUser.sendMessage(ChatColor.GREEN + "The ticket is now activated.");
 
 
         } else if (fareMedium.getType() == Material.BOOK) {  // pass

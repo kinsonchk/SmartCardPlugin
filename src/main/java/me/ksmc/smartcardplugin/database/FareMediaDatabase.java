@@ -239,9 +239,9 @@ public class FareMediaDatabase {
         return null;
     }
 
-    public boolean createEntryRecord(String cardID, String agencyID, String stationCode) throws SQLException {
+    public boolean createEntryRecord(String cardID, String agencyID, String stationCode, String penaltyFare) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE SmartCards SET entry_record = ? WHERE card_id = ?")) {
-            preparedStatement.setString(1, agencyID + "," + stationCode + "," + Instant.now().toString());
+            preparedStatement.setString(1, agencyID + "," + stationCode + "," + Instant.now().toString() + "," + penaltyFare);
             preparedStatement.setString(2, cardID);
 
             return preparedStatement.executeUpdate() > 0;

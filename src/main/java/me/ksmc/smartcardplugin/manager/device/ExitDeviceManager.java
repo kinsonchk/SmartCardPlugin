@@ -12,8 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
 
 public class ExitDeviceManager {
 
@@ -44,6 +42,8 @@ public class ExitDeviceManager {
                 }
             }
 
+            double totalFare = 0;
+
             // NOTE: the penalty fee here is that of the agencyID specified on the device sign, NOT the agencyID of the card
             if (!FareMediaDatabase.getFareMediaDatabase().hasEntryRecord(cardID)) {
                 double cardPenaltyFee = ItemUtils.getCardPenaltyFee(specifiedAgencyId);
@@ -56,22 +56,40 @@ public class ExitDeviceManager {
                     return ChatColor.RED + "Error: Database error.";
                 }
 
+                totalFare = cardPenaltyFee;
+
                 activeUser.sendMessage(ChatColor.GOLD + "$" + cardPenaltyFee + ChatColor.GREEN + " penalty fee has been deducted from the card.");
                 EconomyManager.addAgencyRevenue(specifiedAgencyId, cardPenaltyFee);
+
+            } else {
+                double penaltyFareFromEntryRecord = Double.parseDouble(StringUtils.getPenaltyFareOnCardEntryRecord(cardID));
+
+                // TODO: GET TRIP FARE FROM FARE CHART
+                String originStation = StringUtils.getOriginStationOnCardEntryRecord(cardID);
+
+                String fareRaw = "15.3";  // TEST FOR NOW -- GET FARE FROM EXCEL FILE
+                if (!StringUtils.validMoneyString(fareRaw)) {
+                    return ChatColor.RED + "Error: The fare amount input for this trip is invalid.";
+                }
+                double tripFare = Double.parseDouble(fareRaw);
+
+                double cardNewBalance = cardCurrentBalance - tripFare - penaltyFareFromEntryRecord;
+
+                if (!FareMediaDatabase.getFareMediaDatabase().setCardBalance(cardID, cardNewBalance)) {
+                    return ChatColor.RED + "Error: Database error.";
+                }
+
+                totalFare = tripFare + penaltyFareFromEntryRecord;
+
+                activeUser.sendMessage(ChatColor.GOLD + "$" + totalFare + ChatColor.GREEN + " fare has been deducted from the card.");
+                EconomyManager.addAgencyRevenue(specifiedAgencyId, totalFare);
             }
 
-            // TODO: GET FARE FROM FARE CHART
-            double fare = 0;
-
-            FareMediaDatabase.getFareMediaDatabase().createExitRecord(cardID, specifiedAgencyId, specifiedStationCode);
-
-            activeUser.sendMessage(ChatColor.GOLD + "$" + fare + ChatColor.GREEN + " fare has been deducted from the card.");
-            EconomyManager.addAgencyRevenue(specifiedAgencyId, fare);
-
             // CREATE TRANSACTION RECORD
-            // note: the penalty fare IS NOT included in the transaction record
-            FareMediaDatabase.getFareMediaDatabase().createCardTransactionRecord(cardID, specifiedAgencyId, String.valueOf(fare));
+            // note: the penalty fare from entry record (if involved) is passed onto the transaction record
+            FareMediaDatabase.getFareMediaDatabase().createCardTransactionRecord(cardID, specifiedAgencyId, String.valueOf(totalFare));
             ItemManager.resetSmartcardEntryExitRecord(cardID);
+
             FareMediaDatabase.getFareMediaDatabase().updateCardLastUsedTimestamp(cardID);
             activeUser.sendMessage(ChatColor.GREEN + "Smart card interaction successful.");
 
