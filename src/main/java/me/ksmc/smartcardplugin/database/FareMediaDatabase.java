@@ -394,6 +394,15 @@ public class FareMediaDatabase {
         return -1;
     }
 
+    public boolean updateTripsRemainingOnPass(String passID, int newTripsRemaining) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Passes SET trips_remaining = ? WHERE pass_id = ?")) {
+            preparedStatement.setInt(1, newTripsRemaining);
+            preparedStatement.setString(2, passID);
+
+            return preparedStatement.executeUpdate() > 0;
+        }
+    }
+
     public Boolean getPassEnteredGateState(String passID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT has_entered_gate FROM Passes WHERE pass_id = ?")) {
             preparedStatement.setString(1, passID);
@@ -409,6 +418,20 @@ public class FareMediaDatabase {
         return null;
     }
 
+    public boolean updatePassEnteredGateToTrueState(String passID) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Passes SET has_entered_gate = 1 WHERE pass_id = ?");
+        preparedStatement.setString(1, passID);
+
+        return preparedStatement.executeUpdate() > 0;
+    }
+
+    public boolean updatePassEnteredGateToFalseState(String passID) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Passes SET has_entered_gate = 0 WHERE pass_id = ?");
+        preparedStatement.setString(1, passID);
+
+        return preparedStatement.executeUpdate() > 0;
+    }
+
     public String getPassExpiryTimestamp(String passID) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT expiry FROM Passes WHERE pass_id = ?")) {
             preparedStatement.setString(1, passID);
@@ -417,7 +440,7 @@ public class FareMediaDatabase {
                 return resultSet.getString("expiry");
             }
         }
-        return null;
+        return "";
     }
 
     public boolean deletePass(String passID) throws SQLException {

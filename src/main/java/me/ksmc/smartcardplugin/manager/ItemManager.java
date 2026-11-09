@@ -270,12 +270,17 @@ public class ItemManager {
         return ChatColor.GREEN + "The pass has been issued.";
     }
 
-    // TODO
-//    public static boolean passEnteredGate(String passID) {
-//
-//
-//        return false;
-//    }
+    public static boolean passEnteredGate(String passID) throws SQLException {
+        return FareMediaDatabase.getFareMediaDatabase().getPassEnteredGateState(passID);
+    }
+
+    public static void changePassEnteredGateState(String passID) throws SQLException {
+        if (passEnteredGate(passID)) {
+            FareMediaDatabase.getFareMediaDatabase().updatePassEnteredGateToFalseState(passID);
+        } else {
+            FareMediaDatabase.getFareMediaDatabase().updatePassEnteredGateToTrueState(passID);
+        }
+    }
 
     public static String deletePass(String passID) throws SQLException {
         if (!FareMediaDatabase.getFareMediaDatabase().deletePass(passID)) {

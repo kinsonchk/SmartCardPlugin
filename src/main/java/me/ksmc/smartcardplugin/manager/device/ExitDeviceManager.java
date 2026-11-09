@@ -116,9 +116,28 @@ public class ExitDeviceManager {
             activeUser.sendMessage(ChatColor.GREEN + "The ticket has been confiscated.");
 
         } else if (fareMedium.getType() == Material.BOOK) {  // pass
+            String passID = StringUtils.getPassIdFromLore(fareMedium);
+            String agencyIdOnPass = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnPass(passID);
+            String passType = FareMediaDatabase.getFareMediaDatabase().getPassTypeOnPass(passID);
 
+            if (ItemUtils.passExpired(passID)) {
+                return ChatColor.RED + "Error: The pass has already expired. Please use another pass.";
+            }
 
+            if (!ItemManager.passEnteredGate(passID)) {
+                return ChatColor.RED + "Error: This pass has not been used to activate an entry device. You must use it to activate an entry device before using it again.";
+            }
 
+            if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
+                return ChatColor.RED + "Error: This pass is not valid for the specified station.";
+            }
+
+            if (!ItemUtils.passCanBeUsedWithSpecifiedAgency(agencyIdOnPass, specifiedAgencyId, passType)) {
+                return ChatColor.RED + "Error: This pass cannot be used with the specified agency.";
+            }
+
+            ItemManager.changePassEnteredGateState(passID);
+            activeUser.sendMessage(ChatColor.GREEN + "The pass is accepted.");
 
 
         } else if (fareMedium.getType() == Material.IRON_NUGGET) {  // exit-only ticket

@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemUtils {
@@ -168,10 +167,6 @@ public class ItemUtils {
         return Main.getPlugin().getConfig().getString(agencyID + ".pass-config.pass-types." + passType + ".pass-type-name");
     }
 
-//    public static boolean passValidForStation(String agencyID, ) {
-//
-//    }
-
     public static int getTripsAllowedForPass(String agencyID, String passType) {
         return Main.getPlugin().getConfig().getInt(agencyID + ".pass-config.pass-types." + passType + ".trips-allowed", -1);
     }
@@ -230,6 +225,39 @@ public class ItemUtils {
                 ChatColor.YELLOW + "\nPass Expiry: " + ChatColor.GOLD + passExpiry +
                 ChatColor.YELLOW + "\nEntered Gate State: " + ChatColor.GOLD + passEnteredGateState
         );
+    }
+
+    public static boolean passValidForSpecifiedStation(String agencyIdOnPass, String specifiedStation, String passType) {
+        List<String> validStationsList = Main.getPlugin().getConfig().getStringList(agencyIdOnPass + ".pass-config.pass-types." + passType + ".valid-stations");
+
+        if (validStationsList.isEmpty() || validStationsList.contains(specifiedStation)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean passCanBeUsedWithSpecifiedAgency(String agencyIdOnPass, String specifiedAgencyId, String passType) throws SQLException {
+        if (agencyIdOnPass.equalsIgnoreCase(specifiedAgencyId)) {
+            return true;
+        }
+
+        List<String> useInOtherCompanies = Main.getPlugin().getConfig().getStringList(agencyIdOnPass + ".pass-config.pass-types." + passType + ".use-in-other-companies");
+
+        if (useInOtherCompanies.isEmpty() || useInOtherCompanies.contains(specifiedAgencyId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean passExpired(String passID) throws SQLException {
+        Instant passExpiryTimestamp = Instant.parse(FareMediaDatabase.getFareMediaDatabase().getPassExpiryTimestamp(passID));
+        Instant currentTimestamp = Instant.now();
+        if (passExpiryTimestamp.isBefore(currentTimestamp)) {
+            return true;
+        }
+        return false;
     }
 
 
