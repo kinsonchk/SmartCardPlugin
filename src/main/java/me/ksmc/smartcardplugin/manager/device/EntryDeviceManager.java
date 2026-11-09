@@ -117,12 +117,12 @@ public class EntryDeviceManager {
                 return ChatColor.RED + "Error: There are no more valid trips remaining on this pass. Please use another pass.";
             }
 
-            if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
-                return ChatColor.RED + "Error: This pass is not valid for the specified station.";
-            }
-
             if (!ItemUtils.passCanBeUsedWithSpecifiedAgency(agencyIdOnPass, specifiedAgencyId, passType)) {
                 return ChatColor.RED + "Error: This pass cannot be used with the specified agency.";
+            }
+
+            if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
+                return ChatColor.RED + "Error: This pass is not valid for the specified station.";
             }
 
             // Deduct one trip from the pass (if applicable) upon successful device activation

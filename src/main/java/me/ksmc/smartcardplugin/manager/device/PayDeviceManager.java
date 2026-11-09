@@ -86,8 +86,41 @@ public class PayDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.BOOK) {  // pass
-            // CHECK IF THE PASS HAS ALREADY EXPIRED
+            String passID = StringUtils.getPassIdFromLore(fareMedium);
+            String agencyIdOnPass = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnPass(passID);
+            String passType = FareMediaDatabase.getFareMediaDatabase().getPassTypeOnPass(passID);
+            int tripsRemaining = FareMediaDatabase.getFareMediaDatabase().getTripsRemainingOnPass(passID);
 
+            if (ItemUtils.passExpired(passID)) {
+                return ChatColor.RED + "Error: The pass has already expired. Please use another pass.";
+            }
+
+            if (tripsRemaining != -1 && tripsRemaining <= 0) {  // -1 means unlimited trips
+                return ChatColor.RED + "Error: There are no more valid trips remaining on this pass. Please use another pass.";
+            }
+
+            if (!ItemUtils.passCanBeUsedWithSpecifiedAgency(agencyIdOnPass, specifiedAgencyId, passType)) {
+                return ChatColor.RED + "Error: This pass cannot be used with the specified agency.";
+            }
+
+            if (specifiedStationCode.isBlank()) {
+                return ChatColor.RED + "Error: You cannot use this pay device since no station is specified on it.";
+            }
+
+            if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
+                return ChatColor.RED + "Error: This pass is not valid for the specified station.";
+            }
+
+            // Deduct one trip from the pass (if applicable) upon successful device activation
+            if (tripsRemaining != -1) {
+                int newTripsRemaining = tripsRemaining - 1;
+
+                if (!FareMediaDatabase.getFareMediaDatabase().updateTripsRemainingOnPass(passID, newTripsRemaining)) {
+                    return ChatColor.RED + "Error: Database error.";
+                }
+            }
+
+            activeUser.sendMessage(ChatColor.GREEN + "The pass is accepted.");
 
 
         } else if (fareMedium.getType() == Material.IRON_NUGGET) {  // exit-only ticket

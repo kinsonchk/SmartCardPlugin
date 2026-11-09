@@ -128,12 +128,12 @@ public class ExitDeviceManager {
                 return ChatColor.RED + "Error: This pass has not been used to activate an entry device. You must use it to activate an entry device before using it again.";
             }
 
-            if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
-                return ChatColor.RED + "Error: This pass is not valid for the specified station.";
-            }
-
             if (!ItemUtils.passCanBeUsedWithSpecifiedAgency(agencyIdOnPass, specifiedAgencyId, passType)) {
                 return ChatColor.RED + "Error: This pass cannot be used with the specified agency.";
+            }
+
+            if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
+                return ChatColor.RED + "Error: This pass is not valid for the specified station.";
             }
 
             ItemManager.changePassEnteredGateState(passID);
