@@ -118,8 +118,6 @@ MTR:
       - 20.0
       - 50.0
       - 100.0
-  gate-config:
-    gate-open-time: "2s"
   fare-calculation-config:
     fare-chart: "mtr_sample.csv"
     fare-multiplier-value: 1.0
@@ -156,8 +154,6 @@ MTR_LRT:
       - 20.0
       - 50.0
       - 100.0
-  gate-config:
-    gate-open-time: "2s"
   fare-calculation-config:
     fare-chart: "mtr_lrt_sample.csv"
     fare-multiplier-value: 1.0
@@ -206,8 +202,6 @@ STM:
           - "EXO"
   self-service-machine-config:
     smart-card-add-value-amounts: []
-  gate-config:
-    gate-open-time: "2s"
   fare-calculation-config:
     fare-chart: ""
     fare-multiplier-value: 0.0

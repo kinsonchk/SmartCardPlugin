@@ -154,7 +154,7 @@ There are three types of fare validation devices. They only differ in their reds
 deviceType: "Gate"
 
 Redstone mechanics:
-- Upon successful activation of a gate, the block right below the sign will be changed to a green wool block for a certain period of time (can be set per transit operator), and after that, to a redstone block.
+- Upon successful activation of a gate, the block right below the sign will be changed to an emerald block for 2 seconds (40 Minecraft ticks), and after that, to a redstone block.
 - For wide fare gates (2 blocks wide) using iron trapdoors: upon the opening of a gate, a connected iron trapdoor will also automatically open when placed in the correct orientation.
 #### 3.2.2 Device Type 2: Fare Validators
 deviceType: "Validator"
@@ -272,8 +272,6 @@ agencyID 1 (there must be at least one transit operator defined):
 			- ... same as above
 - self-service machine config:
     - smart card add-value amount increments (list, max 12 options; default only $1 option)
-- gate config:
-	- gate open idle time (must be >0)
 - fare calculation config:
     - station/zone fare chart filename (must be a csv table file; put the file in the designated FareCharts directory)
     - fare multiplier value (optional; can be 0 or above; 0 for free travel across the transportation network; >0 but <1 for a network-wide discount; >1 for a fare increase)
@@ -392,8 +390,6 @@ MTR:
       - 20.0  
       - 50.0  
       - 100.0  
-  gate-config:  
-    gate-open-time: "2s"  
   fare-calculation-config:  
     fare-chart: "mtr_sample.csv"  
     fare-multiplier-value: 1.0  
@@ -430,8 +426,6 @@ MTR_LRT:
       - 20.0  
       - 50.0  
       - 100.0  
-  gate-config:  
-    gate-open-time: "2s"  
   fare-calculation-config:  
     fare-chart: "mtr_lrt_sample.csv"  
     fare-multiplier-value: 1.0  
@@ -480,8 +474,6 @@ STM:
           - "EXO"  
   self-service-machine-config:  
     smart-card-add-value-amounts: []  
-  gate-config:  
-    gate-open-time: "2s"  
   fare-calculation-config:  
     fare-chart: ""  
     fare-multiplier-value: 0.0
