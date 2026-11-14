@@ -24,9 +24,16 @@ public class StaffDeviceManager {
             return ChatColor.RED + "Error: The agencyID on the staff pass does not match with the one specified on the device.";
         }
 
+
         if (deviceType.equalsIgnoreCase("gate")) {
-            // activate the gate
-            GateManager.activateGate(deviceSign);
+            GateManager gateManager = new GateManager();
+
+            if (gateManager.gateCurrentlyInUse(deviceSign)) {
+                DeviceUtils.playErrorSound(activeUser);
+                return ChatColor.RED + "Error: This gate is currently in use.";
+            }
+
+            gateManager.activateGate(deviceSign);
         }
 
         DeviceUtils.playSuccessSound(activeUser);

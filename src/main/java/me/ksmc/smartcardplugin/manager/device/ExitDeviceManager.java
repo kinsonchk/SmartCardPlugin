@@ -181,9 +181,16 @@ public class ExitDeviceManager {
             }
         }
 
+
         if (deviceType.equalsIgnoreCase("gate")) {
-            // activate the gate
-            GateManager.activateGate(deviceSign);
+            GateManager gateManager = new GateManager();
+
+            if (gateManager.gateCurrentlyInUse(deviceSign)) {
+                DeviceUtils.playErrorSound(activeUser);
+                return ChatColor.RED + "Error: This gate is currently in use.";
+            }
+
+            gateManager.activateGate(deviceSign);
         }
 
         DeviceUtils.playSuccessSound(activeUser);

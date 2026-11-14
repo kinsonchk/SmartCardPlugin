@@ -69,7 +69,7 @@ public class EntryDeviceManager {
                 double cardNewBalance = cardCurrentBalance - cardPenaltyFee - accumulatedPenaltyFare;
                 if (cardNewBalance <= 0) {
                     DeviceUtils.playErrorSound(activeUser);
-                    return ChatColor.RED + "Error: The smartcard's balance is too low. Please add value to use it.";
+                    return ChatColor.RED + "Error: There has been an outstanding penalty fee accumulated but not yet deducted from this card, and if it is used again, its balance will become negative. You are advised to pay all the accumulated penalty fee by activating an exit device, or have an admin reset the card's entry record.";
                 }
 
                 accumulatedPenaltyFare += cardPenaltyFee;
@@ -169,9 +169,20 @@ public class EntryDeviceManager {
             }
         }
 
+
         if (deviceType.equalsIgnoreCase("gate")) {
-            // activate the gate
-            GateManager.activateGate(deviceSign);
+            GateManager gateManager = new GateManager();
+
+            if (gateManager.gateCurrentlyInUse(deviceSign)) {
+                DeviceUtils.playErrorSound(activeUser);
+                return ChatColor.RED + "Error: This gate is currently in use.";
+            }
+
+            gateManager.activateGate(deviceSign);
+        }
+
+        if (deviceType.equalsIgnoreCase("terminal")) {
+
         }
 
         DeviceUtils.playSuccessSound(activeUser);

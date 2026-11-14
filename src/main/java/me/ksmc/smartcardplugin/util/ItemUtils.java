@@ -74,8 +74,9 @@ public class ItemUtils {
         }
         StringBuilder entryRecordToDisplay = new StringBuilder();
         if (currentEntryRecord != null) {
+            entryRecordToDisplay.append(ChatColor.DARK_AQUA + "\nAgency  |  Origin Station  |  Timestamp  |  Accumulated Penalty Fee");
             String[] entryRecord = currentEntryRecord.split(",");
-            entryRecordToDisplay.append("\n ");
+            entryRecordToDisplay.append(ChatColor.AQUA + "\n ");
             for (String info : entryRecord) {
                 entryRecordToDisplay.append(info + "  ");
             }
@@ -92,10 +93,11 @@ public class ItemUtils {
         String[] transactionsList = cardTransactions.split(";");
         StringBuilder transactionsStringToDisplay = new StringBuilder();
         if (!cardTransactions.isEmpty()) {
+            transactionsStringToDisplay.append(ChatColor.DARK_AQUA + "\nNo.  |  Timestamp  |  Agency  |  Amount");
             int index = 0;
             for (String transaction : transactionsList) {
                 index++;
-                transactionsStringToDisplay.append("\n" + index + ".  ");
+                transactionsStringToDisplay.append(ChatColor.AQUA + "\n" + index + ".  ");
                 String[] transactionRecord = transaction.split(",");
                 for (String info : transactionRecord) {
                     transactionsStringToDisplay.append(info + "  ");
