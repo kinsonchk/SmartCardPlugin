@@ -102,6 +102,11 @@ public class ItemManager {
             return ChatColor.RED + "Error: The money amount input is invalid.";
         }
 
+        double cardMaxBalance = Double.parseDouble(ItemUtils.getCardMaxBalance(FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnCard(cardID)));
+        if (Double.parseDouble(moneyAmount) > cardMaxBalance) {
+            return ChatColor.RED + "Error: The money amount input exceeded the maximum balance allowed to be loaded onto the card.";
+        }
+
         return ChatColor.GREEN + "The smartcard's balance has been updated to " + ChatColor.GOLD + "$" + moneyAmount + ChatColor.GREEN + ".";
     }
 

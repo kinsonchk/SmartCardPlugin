@@ -3,6 +3,8 @@ package me.ksmc.smartcardplugin.manager.device;
 import me.ksmc.smartcardplugin.database.FareMediaDatabase;
 import me.ksmc.smartcardplugin.manager.EconomyManager;
 import me.ksmc.smartcardplugin.manager.ItemManager;
+import me.ksmc.smartcardplugin.manager.device.type.GateManager;
+import me.ksmc.smartcardplugin.util.DeviceUtils;
 import me.ksmc.smartcardplugin.util.ItemUtils;
 import me.ksmc.smartcardplugin.util.StringUtils;
 import org.bukkit.ChatColor;
@@ -24,19 +26,23 @@ public class EntryDeviceManager {
             String agencyIdOnCard = FareMediaDatabase.getFareMediaDatabase().getAgencyIdOnCard(cardID);
 
             if (ItemUtils.cardExpired(cardID)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This smart card has already expired. Please use another card.";
             }
 
             if (!ItemUtils.cardCanBeUsedWithSpecifiedAgency(agencyIdOnCard, specifiedAgencyId)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This card cannot be used with the specified agency.";
             }
 
             String cardBalanceRaw = ItemManager.getSmartcardBalance(cardID);
             if (cardBalanceRaw == null) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: Database error.";
             }
             double cardCurrentBalance = Double.parseDouble(cardBalanceRaw);
             if (cardCurrentBalance <= 0) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: The smartcard's balance is too low. Please add value to use it.";
             }
 
@@ -45,6 +51,7 @@ public class EntryDeviceManager {
             if (FareMediaDatabase.getFareMediaDatabase().hasEntryRecord(cardID)) {
                 String agencyIdOnCardEntryRecord = StringUtils.getAgencyIdOnCardEntryRecord(cardID);
                 if (!agencyIdOnCardEntryRecord.equals(specifiedAgencyId)) {
+                    DeviceUtils.playErrorSound(activeUser);
                     return ChatColor.RED + "Error: This card has been used to activate an entry device of another agency. You must use it to activate a device of that same agency to use the card again, or have an admin reset the card's entry record.";
                 }
 
@@ -55,11 +62,13 @@ public class EntryDeviceManager {
                 // NOTE: it uses the agencyID ON THE CARD'S ENTRY RECORD, NOT the agencyID that issued the card, NOR the agencyID specified on the entry device sign
                 double cardPenaltyFee = ItemUtils.getCardPenaltyFee(agencyIdOnCardEntryRecord);
                 if (!StringUtils.validMoneyString(String.valueOf(cardPenaltyFee))) {
+                    DeviceUtils.playErrorSound(activeUser);
                     return ChatColor.RED + "Error: The penalty fee amount input is invalid.";
                 }
 
                 double cardNewBalance = cardCurrentBalance - cardPenaltyFee - accumulatedPenaltyFare;
                 if (cardNewBalance <= 0) {
+                    DeviceUtils.playErrorSound(activeUser);
                     return ChatColor.RED + "Error: The smartcard's balance is too low. Please add value to use it.";
                 }
 
@@ -77,20 +86,24 @@ public class EntryDeviceManager {
 
         } else if (fareMedium.getType() == Material.PAPER) {  // single-journey ticket
             if (ItemUtils.ticketExpired(fareMedium)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This single-journey ticket has already expired. Please use another ticket.";
             }
 
             String agencyIdOnTicket = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnTicket.equals(specifiedAgencyId)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: The agencyID on the ticket does not match with the one specified on the device.";
             }
 
             if (ItemManager.ticketUsed(fareMedium)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This ticket has already been used.";
             }
 
             String originStationCode = StringUtils.getTicketOriginStationFromLore(fareMedium);
             if (!originStationCode.equals(specifiedStationCode)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: The origin station on the ticket does not match with the one specified on the device.";
             }
 
@@ -106,22 +119,27 @@ public class EntryDeviceManager {
             int tripsRemaining = FareMediaDatabase.getFareMediaDatabase().getTripsRemainingOnPass(passID);
 
             if (ItemUtils.passExpired(passID)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: The pass has already expired. Please use another pass.";
             }
 
             if (ItemManager.passEnteredGate(passID)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This pass has been used to activate an entry device but not an exit device. You must use it to activate an exit device before using it again.";
             }
 
             if (tripsRemaining != -1 && tripsRemaining <= 0) {  // -1 means unlimited trips
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: There are no more valid trips remaining on this pass. Please use another pass.";
             }
 
             if (!ItemUtils.passCanBeUsedWithSpecifiedAgency(agencyIdOnPass, specifiedAgencyId, passType)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This pass cannot be used with the specified agency.";
             }
 
             if (!ItemUtils.passValidForSpecifiedStation(agencyIdOnPass, specifiedStationCode, passType)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: This pass is not valid for the specified station.";
             }
 
@@ -130,6 +148,7 @@ public class EntryDeviceManager {
                 int newTripsRemaining = tripsRemaining - 1;
 
                 if (!FareMediaDatabase.getFareMediaDatabase().updateTripsRemainingOnPass(passID, newTripsRemaining)) {
+                    DeviceUtils.playErrorSound(activeUser);
                     return ChatColor.RED + "Error: Database error.";
                 }
             }
@@ -139,19 +158,23 @@ public class EntryDeviceManager {
 
 
         } else if (fareMedium.getType() == Material.IRON_NUGGET) {  // exit-only ticket
+            DeviceUtils.playErrorSound(activeUser);
             return ChatColor.RED + "Error: Exit-only tickets can only be used with exit devices.";
 
         } else if (fareMedium.getType() == Material.TRIAL_KEY) {  // staff pass
             String agencyIdOnStaffPass = StringUtils.getAgencyIdFromLore(fareMedium);
             if (!agencyIdOnStaffPass.equals(specifiedAgencyId)) {
+                DeviceUtils.playErrorSound(activeUser);
                 return ChatColor.RED + "Error: The agencyID on the staff pass does not match with the one specified on the device.";
             }
         }
 
         if (deviceType.equalsIgnoreCase("gate")) {
             // activate the gate
+            GateManager.activateGate(deviceSign);
         }
 
+        DeviceUtils.playSuccessSound(activeUser);
         return ChatColor.GREEN + "Entry " + deviceType + " activated.";
     }
 

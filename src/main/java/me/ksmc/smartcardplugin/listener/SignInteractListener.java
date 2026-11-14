@@ -115,9 +115,9 @@ public class SignInteractListener implements Listener {
                         case "[Staff Gate]", "[Staff Validator]": {
                             switch (lines[0]) {
                                 case "[Staff Gate]" ->
-                                        player.sendMessage(StaffDeviceManager.activateDevice("gate", sign, item, agencyID));
+                                        player.sendMessage(StaffDeviceManager.activateDevice("gate", sign, player, item, agencyID));
                                 case "[Staff Validator]" ->
-                                        player.sendMessage(StaffDeviceManager.activateDevice("validator", sign, item, agencyID));
+                                        player.sendMessage(StaffDeviceManager.activateDevice("validator", sign, player, item, agencyID));
                             }
 
                             break;

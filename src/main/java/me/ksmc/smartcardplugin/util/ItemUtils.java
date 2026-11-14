@@ -25,6 +25,10 @@ public class ItemUtils {
         return Main.getPlugin().getConfig().getString(agencyID + ".smart-card-config.card-brand-name");
     }
 
+    public static String getCardMaxBalance(String agencyID) {
+        return Main.getPlugin().getConfig().getString(agencyID + ".smart-card-config.max-balance");
+    }
+
     public static double getCardPenaltyFee(String agencyID) {
         return Main.getPlugin().getConfig().getDouble(agencyID + ".smart-card-config.penalty-fee", 0);
     }
